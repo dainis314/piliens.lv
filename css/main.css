@@ -1,0 +1,93 @@
+/* piliens.lv v2: pamata stili. Fonti glabājas pašu repozitorijā (bez Google Fonts). */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/fraunces-latin-full-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/fraunces-latin-ext-full-normal.woff2) format("woff2");unicode-range:U+0100-024F,U+1E00-1EFF,U+20A0-20AB,U+20AD-20CF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url(../assets/fonts/fraunces-latin-full-italic.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url(../assets/fonts/fraunces-latin-ext-full-italic.woff2) format("woff2");unicode-range:U+0100-024F,U+1E00-1EFF,U+20A0-20AB,U+20AD-20CF}
+@font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212}
+@font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-024F,U+1E00-1EFF,U+20A0-20AB,U+20AD-20CF}
+
+:root{
+  --rasa:#E4EAE6; --dzilums:#12343B; --tinte:#262A86; --nakts:#18222B;
+  --serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --sans:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --navc:#12343B; --navveil:rgba(228,234,230,.55);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:#0d1210;scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:#0d1210;color:var(--dzilums);font-family:var(--sans);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* katra sadaļa: pilns ekrāns ar statisku kadru, ko aizstāj WebGL, tiklīdz tas gatavs */
+.scene{position:relative;height:100vh;height:100svh;min-height:540px;overflow:hidden;
+  background:#0d1210 var(--still) center/cover no-repeat}
+@media (max-aspect-ratio:9/10){.scene{background-image:var(--still-m)}}
+#piliens{--still:url(../assets/kadri/piliens.jpg);--still-m:url(../assets/kadri/piliens-m.jpg)}
+#lase{--still:url(../assets/kadri/lase.jpg);--still-m:url(../assets/kadri/lase-m.jpg)}
+#tinte{--still:url(../assets/kadri/tinte.jpg);--still-m:url(../assets/kadri/tinte-m.jpg)}
+#lietus{--still:url(../assets/kadri/lietus.jpg);--still-m:url(../assets/kadri/lietus-m.jpg)}
+#rasa{--still:url(../assets/kadri/rasa.jpg);--still-m:url(../assets/kadri/rasa-m.jpg)}
+#laiks{--still:url(../assets/kadri/laiks.jpg);--still-m:url(../assets/kadri/laiks-m.jpg)}
+#jura{--still:url(../assets/kadri/kaje.jpg);--still-m:url(../assets/kadri/kaje-m.jpg)}
+.stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity .6s}
+.gl-ready .stage{opacity:1}
+.stage:focus-visible{outline:3px solid currentColor;outline-offset:-8px}
+
+/* paraksts: apakšā pa kreisi; kontrastu dod maiga migla (teksta ēna), nevis kaste */
+.cap{position:absolute;left:clamp(20px,5vw,80px);bottom:clamp(36px,10vh,96px);max-width:30ch;pointer-events:none;z-index:2;
+  color:var(--capc);text-shadow:0 0 18px var(--veil),0 0 42px var(--veil),0 1px 2px var(--veil)}
+.cap h2{font-family:var(--serif);font-weight:420;font-size:clamp(56px,9vw,128px);line-height:.88;letter-spacing:-.025em;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 144;margin:0 0 .22em -.04em}
+.cap p{font-size:clamp(16px,1.35vw,19px);line-height:1.5}
+.cap .hint{margin-top:.7em;font-size:15px;opacity:.85}
+.credit{position:absolute;right:clamp(20px,5vw,80px);bottom:clamp(28px,7vh,80px);font-size:13px;z-index:2;pointer-events:none;color:var(--capc);opacity:.8;text-shadow:0 0 12px var(--veil)}
+
+#piliens{--capc:#12343B;--veil:rgba(228,234,230,.6)}
+#lase{--capc:#F2EBDD;--veil:rgba(20,12,4,.65)}
+#tinte{--capc:#1E2170;--veil:rgba(236,240,236,.7)}
+#lietus{--capc:#F4F6F4;--veil:rgba(30,32,36,.6)}
+#rasa{--capc:#F3F7EC;--veil:rgba(10,28,8,.65)}
+#laiks{--capc:#EEF3E6;--veil:rgba(10,18,8,.65)}
+#jura{--capc:#F4F4EE;--veil:rgba(12,18,20,.6)}
+
+.tagline{position:absolute;left:0;right:0;top:62%;text-align:center;font-family:var(--serif);font-style:italic;font-weight:360;font-variation-settings:"SOFT" 100,"opsz" 36;font-size:clamp(18px,2vw,26px);pointer-events:none;z-index:2;color:#12343B;text-shadow:0 0 16px rgba(228,234,230,.8)}
+#laiks .cap h2{font-variant-numeric:lining-nums tabular-nums;font-weight:300}
+#jura .cap h2.mark{font-size:clamp(44px,6vw,84px)}
+
+/* navigācija un skaņa: krāsa un migla pēc aktīvās sadaļas, lai būtu salasāmas uz jebkura fona */
+.chrome{position:fixed;z-index:10;color:var(--navc);transition:color .4s}
+body[data-sec="piliens"]{--navc:#12343B;--navveil:rgba(228,234,230,.7)}
+body[data-sec="lase"]{--navc:#F2EBDD;--navveil:rgba(20,12,4,.7)}
+body[data-sec="tinte"]{--navc:#1E2170;--navveil:rgba(236,240,236,.75)}
+body[data-sec="lietus"]{--navc:#F4F6F4;--navveil:rgba(30,32,36,.7)}
+body[data-sec="rasa"],body[data-sec="laiks"]{--navc:#F3F7EC;--navveil:rgba(10,28,8,.75)}
+body[data-sec="jura"]{--navc:#F4F4EE;--navveil:rgba(12,18,20,.7)}
+.index{right:clamp(14px,2.4vw,32px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:14px;text-shadow:0 0 10px var(--navveil),0 0 22px var(--navveil),0 0 3px var(--navveil)}
+.index a{color:inherit;text-decoration:none;opacity:.7;padding:2px 0 2px 16px;position:relative;transition:opacity .25s}
+.index a:hover{opacity:.95}
+.index a.on{opacity:1}
+.index a.on::before{content:"";position:absolute;left:2px;top:50%;width:7px;height:9px;margin-top:-5px;background:currentColor;clip-path:path("M3.5 0C3.5 0 0 4.6 0 6a3.5 3.5 0 0 0 7 0C7 4.6 3.5 0 3.5 0z")}
+.index a:focus-visible,.sound:focus-visible{outline:2px solid currentColor;outline-offset:3px;opacity:1}
+.sound{top:clamp(14px,2.4vw,28px);right:clamp(14px,2.4vw,32px);background:none;border:1px solid currentColor;border-radius:999px;color:var(--navc);font:inherit;font-size:14px;padding:5px 14px;cursor:pointer;text-shadow:0 0 10px var(--navveil);box-shadow:0 0 18px var(--navveil),inset 0 0 12px var(--navveil)}
+@media (max-width:720px){.index{display:none}}
+@media (max-width:720px){.credit{bottom:auto;top:clamp(64px,10vh,96px);right:auto;left:clamp(20px,5vw,80px)}}
+/* rasa: sīktēlu pogas ir neredzamas; pašas lāses zīmē šeideris */
+#rasa .thumbs{position:absolute;inset:0;pointer-events:none;z-index:3}
+#rasa .thumbs button{position:absolute;pointer-events:auto;border:0;border-radius:50%;background:transparent;cursor:pointer;padding:0}
+#rasa .thumbs button:focus-visible{outline:2px solid #F3F7EC;outline-offset:4px}
+#rasa:not(.gl-ready) .thumbs{display:none}
+#rasa .credit{bottom:12px}
+/* piliens: tvaika slānis un klimata uzraksti */
+#piliens .air{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.climate{position:absolute;z-index:2;pointer-events:none;font-family:var(--serif);font-style:italic;font-weight:360;font-variation-settings:"SOFT" 100,"opsz" 24;font-size:15px;line-height:1.35;opacity:0;transition:opacity 1s}
+.gl-ready .climate{opacity:1}
+.climate b{display:block;font-style:normal;font-weight:520;font-size:22px;font-variation-settings:"SOFT" 100,"opsz" 48}
+.climate.warm{right:clamp(20px,5vw,80px);top:clamp(70px,11vh,110px);text-align:right;color:#6E3510;text-shadow:0 0 14px rgba(255,236,210,.85)}
+.climate.cool{left:clamp(20px,5vw,80px);color:#163F5A;text-shadow:0 0 14px rgba(225,236,244,.85)}
+.climate.dew{transform-origin:0 0;color:#12343B;font-size:14px;text-shadow:0 0 10px rgba(228,234,230,.9);white-space:nowrap}
+@media (max-width:720px){.climate.warm{top:clamp(64px,10vh,96px)}}
+/* dabīgās robežas: sadaļa pārklāj iepriekšējās apakšu ar neregulāru malu */
+.scene.edged{margin-top:-8vh;z-index:1;
+  -webkit-mask-image:var(--edge),linear-gradient(#000,#000);mask-image:var(--edge),linear-gradient(#000,#000);
+  -webkit-mask-size:100% 8vh,100% calc(100% - 8vh + 1px);mask-size:100% 8vh,100% calc(100% - 8vh + 1px);
+  -webkit-mask-position:top,bottom;mask-position:top,bottom;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+#lase.edged{z-index:2}#tinte.edged{z-index:3}#lietus.edged{z-index:4}#rasa.edged{z-index:5}#laiks.edged{z-index:6}#jura.edged{z-index:7}

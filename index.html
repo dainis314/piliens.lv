@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>piliens</title>
+<meta name="description" content="Viens piliens no gaisa līdz jūrai: rasas punkts, upe, tinte, lietus, rasa un laiks. Dabas lapa ar Daiņa fotogrāfijām.">
+<meta name="theme-color" content="#12343B">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://piliens.lv/">
+<meta property="og:title" content="piliens">
+<meta property="og:description" content="Viens piliens no gaisa līdz jūrai.">
+<meta property="og:image" content="https://piliens.lv/assets/og/piliens-og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="lv_LV">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="piliens">
+<meta name="twitter:description" content="Viens piliens no gaisa līdz jūrai.">
+<meta name="twitter:image" content="https://piliens.lv/assets/og/piliens-og.jpg">
+<link rel="icon" href="assets/og/ikona.svg" type="image/svg+xml">
+<link rel="icon" href="assets/og/ikona-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/og/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/cursor.css">
+</head>
+<body>
+<div class="dcur" id="dcur" aria-hidden="true">
+  <div class="swing" id="dcSwing">
+    <div class="glass" id="dcGlass"></div>
+    <svg viewBox="0 0 64 72" width="64" height="72" xmlns="http://www.w3.org/2000/svg">
+      <g id="dcBody">
+        <path class="fill" d="M38 14C42 24 54 34 54 48A16 16 0 0 1 22 48C22 34 34 24 38 14Z"/>
+        <path class="rim" d="M38 14C42 24 54 34 54 48A16 16 0 0 1 22 48C22 34 34 24 38 14Z"/>
+        <g class="extra bubbles" fill="#FFF0C8" opacity=".8"><circle cx="45" cy="52" r="1.3"/><circle cx="30" cy="56" r=".9"/><circle cx="47" cy="40" r=".8"/></g>
+        <g class="extra frost" stroke="#FFFFFF" stroke-width=".9" stroke-linecap="round"><path d="M28 39l4 0M30 37l0 4M45 57l3 0M46.5 55.5l0 3M49 44l2.4 0M50.2 42.8l0 2.4M36 21l2 0M37 20l0 2"/></g>
+        <ellipse cx="30" cy="35" rx="2.6" ry="5.6" transform="rotate(28 30 35)" fill="#fff" opacity=".75"/>
+        <circle cx="48" cy="55" r="1.4" fill="#fff" opacity=".45"/>
+        <g id="dcFace">
+          <circle cx="31" cy="51" r="2.2" fill="#FF7A90" opacity=".32"/>
+          <circle cx="46" cy="51" r="2.2" fill="#FF7A90" opacity=".32"/>
+          <g id="dcEyes"><ellipse class="ink" cx="34" cy="45" rx="1.9" ry="2.4"/><ellipse class="ink" cx="42" cy="45" rx="1.9" ry="2.4"/>
+            <circle cx="34.6" cy="44.2" r=".7" fill="#fff"/><circle cx="42.6" cy="44.2" r=".7" fill="#fff"/></g>
+          <g id="dcHappy" opacity="0"><path class="inkline" d="M32 46q2-3 4 0M40 46q2-3 4 0"/></g>
+          <path id="dcMouth" class="inkline" d="M35 50.5q3 3 6 0"/>
+        </g>
+      </g>
+      <!-- rociņa ar rādītājpirkstu: pirksta gals ir klikšķa vieta (6,6) -->
+      <path class="tube" d="M24.5 33Q18.5 29 16 20"/>
+      <path class="tube" d="M12.4 13.2L6.6 6.6"/>
+      <circle class="fill" cx="14.6" cy="16.4" r="4.4"/>
+      <circle class="rim" cx="14.6" cy="16.4" r="4.4"/>
+      <ellipse class="fill" cx="18.6" cy="13.6" rx="1.7" ry="1.4"/>
+      <ellipse class="rim" cx="18.6" cy="13.6" rx="1.7" ry="1.4" style="stroke-width:1.2"/>
+      <path class="tubein" d="M24.5 33Q18.5 29 16.6 21.5"/>
+      <path class="tubein" d="M13.2 14L6.6 6.6"/>
+      <circle cx="13.4" cy="15" r="1.1" fill="#fff" opacity=".6"/>
+    </svg>
+  </div>
+</div>
+<button class="chrome sound" id="sound" type="button" aria-pressed="false">Ieslēgt skaņu</button>
+
+<nav class="chrome index" aria-label="Sadaļas">
+  <a href="#piliens">piliens</a>
+  <a href="#lase">lāse</a>
+  <a href="#tinte">tinte</a>
+  <a href="#lietus">lietus</a>
+  <a href="#rasa">rasa</a>
+  <a href="#laiks">laiks</a>
+</nav>
+
+<main>
+
+<section id="piliens" class="scene" data-static="piliens">
+  <h1 class="sr-only">piliens</h1>
+  <canvas class="stage" aria-hidden="true"></canvas>
+  <p class="tagline">Seši veidi, kā izskatās viena lāse.</p>
+</section>
+
+<section id="lase" class="scene" data-static="lase">
+  <canvas class="stage" tabindex="0" role="img" aria-label="Sekla upe ar tējas brūnu ūdeni; caur to redzami oļi un smiltis, uz kurām zīmējas gaismas tīkls. Nospied Enter, lai iepilinātu lāsi."></canvas>
+  <div class="cap">
+    <h2>lāse</h2>
+    <p>Upes grunts caur seklu ūdeni. Katrs vilnis pārzīmē gaismas tīklu uz akmeņiem.</p>
+    <p class="hint">Klikšķini vai velc pa ūdeni.</p>
+  </div>
+</section>
+
+<section id="tinte" class="scene" data-static="tinte">
+  <canvas class="stage" tabindex="0" role="img" aria-label="Glāze ūdens pret logu; tintes piliens izplūst virpuļgredzenos. Nospied Enter, lai iepilinātu tinti."></canvas>
+  <div class="cap">
+    <h2>tinte</h2>
+    <p>Tintes piliens glāzē ūdens. Divreiz vienādi tas neizplūst nekad.</p>
+    <p class="hint">Klikšķini, lai iepilinātu.</p>
+  </div>
+</section>
+
+<section id="lietus" class="scene" data-static="lietus">
+  <canvas class="stage" tabindex="0" role="img" aria-label="Aprasojis vecs logs, aiz kura sarmots rīts; lāses uz stikla. Kursors noslauka aprasojumu."></canvas>
+  <div class="cap">
+    <h2>lietus</h2>
+    <p>Rīts aiz veca loga. Lielās lāses aprij mazās un aizslīd lejup.</p>
+    <p class="hint">Velc pa aprasojušo stiklu, lai noslaucītu.</p>
+  </div>
+</section>
+
+<section id="rasa" class="scene" data-static="rasa">
+  <canvas class="stage" tabindex="0" role="img" aria-label="Fotogrāfija ar rasas lāsēm; kursors kustas pār to kā palielinoša ūdens lāse."></canvas>
+  <div class="cap">
+    <h2>rasa</h2>
+    <p id="rasaText">Lupīnas lapas pēc lietus. Katras lapas vidū sakrājusies viena lāse, kas strādā kā lēca.</p>
+    <p class="hint">Vadi kursoru pār bildi: tas kļūst par lāsi.</p>
+  </div>
+  <p class="credit">Foto: Dainis</p>
+</section>
+
+<section id="laiks" class="scene" data-static="laiks">
+  <canvas class="stage" aria-hidden="true"></canvas>
+  <div class="cap">
+    <h2 id="count" aria-live="off">0</h2>
+    <p id="countText">pilienu, kopš atvēri šo lapu. Viens katru sekundi, un sūna kļūst zaļāka.</p>
+  </div>
+</section>
+
+</main>
+
+<footer id="jura" class="scene" data-static="kaje">
+  <canvas class="stage" aria-hidden="true"></canvas>
+  <div class="cap">
+    <h2 class="mark">piliens.lv</h2>
+    <p>Viens piliens no gaisa līdz jūrai.</p>
+  </div>
+  <p class="credit">Visas fotogrāfijas: Dainis</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
