@@ -19,6 +19,7 @@ function dust() {
 }
 const DUST = dust();
 import { wordMask } from "./still.js";
+import { t, temp, pct, onLang } from "../i18n.js";
 
 const DEW = .555; // rasas punkta līnija diagonālē (sakrīt ar šeideri)
 
@@ -67,9 +68,17 @@ export function createPiliens(section) {
 
   // klimata uzraksti
   const lab = html => { const p = document.createElement("p"); p.className = "climate"; p.innerHTML = html; section.appendChild(p); return p; };
-  const warm = lab("<b>+22 °C</b>silts, mitrs gaiss<br>mitrums 53 %"); warm.classList.add("warm");
-  const cool = lab("<b>+4 °C</b>vēsums"); cool.classList.add("cool");
-  const dewL = lab("rasas punkts, +12 °C"); dewL.classList.add("dew");
+  const warm = lab(""); warm.classList.add("warm");
+  const cool = lab(""); cool.classList.add("cool");
+  const dewL = lab(""); dewL.classList.add("dew");
+  // klimata uzraksti caur tulkojumiem; skaitļi ar valodas formātu (Intl.NumberFormat)
+  const esc = s => s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+  function climate() {
+    warm.innerHTML = `<b>${esc(temp(22))}</b>${esc(t("climate.warm"))}<br>${esc(t("climate.humidity", { p: pct(.53) }))}`;
+    cool.innerHTML = `<b>${esc(temp(4))}</b>${esc(t("climate.cool"))}`;
+    dewL.textContent = t("climate.dew", { t: temp(12) });
+  }
+  climate(); onLang(climate);
 
   const cold = (x, y) => clamp((DEW - (x / w + 1 - y / h) / 2) / DEW * 3, 0, 1);
   const ink = (x, y) => { if (!mask) return false; const mx = Math.round(x * mk), my = Math.round(y * mk); return mx >= 0 && my >= 0 && mx < MW && my < MH && mask[my * MW + mx] > 140; };

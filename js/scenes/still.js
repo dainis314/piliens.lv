@@ -1,6 +1,4 @@
-// Ainas, kas vēl nav pilnībā atdzīvinātas: koncepcijas šeideris ar laiku un kursoru.
-// Katra sadaļa tiks pārbūvēta ar savu fiziku (sk. darba gaitu README).
-import { GLScene, loadImage } from "../glscene.js";
+// Kopīgie 2D audekli šeideriem: vārda "piliens" maska (pirmā lapa) un vārdi upes gultnē (lāse).
 import { SEED, rng } from "../util.js";
 
 export async function wordMask(w, h) {
@@ -33,44 +31,4 @@ export async function sandWords(w, h) {
     break;
   }
   return c;
-}
-
-const LOADERS = {
-  async piliens(s, w, h) {
-    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.webp"), loadImage("foto/sarma-rits-izpludis.webp")]);
-    s.bgAspect = a.naturalWidth / a.naturalHeight;
-    return [await wordMask(w, h), a, b];
-  },
-  async lase(s, w, h) { return [await sandWords(w, h)]; },
-  async tinte(s) { const a = await loadImage("foto/mezs-izpludis2.webp"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; },
-  async lietus(s) {
-    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.webp"), loadImage("foto/sarma-rits-izpludis.webp")]);
-    s.bgAspect = a.naturalWidth / a.naturalHeight; return [a, b];
-  },
-  async rasa(s, w, h) {
-    const tall = w / h < .9;
-    const img = await loadImage("foto/" + (tall ? "lupina-tuva.webp" : "lupina-plata.webp"));
-    s.imgAspect = img.naturalWidth / img.naturalHeight; s.focus = tall ? [.49, .39] : [.24, .54];
-    const names = ["lupina-plata", "rasaskreslins", "zvaigzne", "sarma", "rudens", "bite", "gailene", "audums"];
-    const at = document.createElement("canvas"); at.width = 1280; at.height = 160;
-    const ax = at.getContext("2d", { willReadFrequently: true });
-    const th = await Promise.all(names.map(n => loadImage("foto/mazas/" + n + ".webp")));
-    th.forEach((t, i) => ax.drawImage(t, i * 160, 0, 160, 160));
-    return [img, at];
-  },
-  async kaje(s) { const a = await loadImage("foto/jura-akmeni.webp"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; }
-};
-
-export function createStill(section, frag) {
-  const canvas = section.querySelector("canvas");
-  const scene = new GLScene({
-    section, canvas, frag,
-    async textures(s) { const r = canvas.getBoundingClientRect(); return LOADERS[frag](s, r.width, r.height); },
-    uniforms(s) {
-      const gl = s.gl;
-      if (s.bgAspect) gl.uniform1f(s.U("uBgAspect"), s.bgAspect);
-      if (s.imgAspect) { gl.uniform1f(s.U("uImgAspect"), s.imgAspect); gl.uniform2f(s.U("uFocus"), s.focus[0], s.focus[1]); }
-    }
-  });
-  return { el: section, scene, step(time, dt) { scene.render(time, dt); } };
 }

@@ -6,6 +6,14 @@
 @font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212}
 @font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-024F,U+1E00-1EFF,U+20A0-20AB,U+20AD-20CF}
 
+/* kirilica (bg) un grieķu (el): ielādējas tikai tad, ja lapā parādās šīs rakstzīmes (unicode-range).
+   Virsrakstiem Fraunces vietā Literata (OFL, tuvs mīksts antīkvas raksturs), tekstam Commissioner. */
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/literata-cyrillic-wght-normal.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url(../assets/fonts/literata-cyrillic-wght-italic.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Fraunces";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/literata-greek-wght-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
+@font-face{font-family:"Fraunces";font-style:italic;font-weight:100 900;font-display:swap;src:url(../assets/fonts/literata-greek-wght-italic.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
+@font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-cyrillic-wght-normal.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Commissioner";font-style:normal;font-weight:100 900;font-display:swap;src:url(../assets/fonts/commissioner-greek-wght-normal.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
 :root{
   --rasa:#E4EAE6; --dzilums:#12343B; --tinte:#262A86; --nakts:#18222B;
   --serif:"Fraunces",Georgia,"Times New Roman",serif;
@@ -28,6 +36,7 @@ body{background:#0d1210;color:var(--dzilums);font-family:var(--sans);font-size:1
 #lietus{--still:url(../assets/kadri/lietus.webp);--still-m:url(../assets/kadri/lietus-m.webp)}
 #rasa{--still:url(../assets/kadri/rasa.webp);--still-m:url(../assets/kadri/rasa-m.webp)}
 #laiks{--still:url(../assets/kadri/laiks.webp);--still-m:url(../assets/kadri/laiks-m.webp)}
+#sene{--still:url(../assets/kadri/sene.webp);--still-m:url(../assets/kadri/sene-m.webp)}
 #jura{--still:url(../assets/kadri/kaje.webp);--still-m:url(../assets/kadri/kaje-m.webp)}
 .stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity .6s}
 .gl-ready .stage{opacity:1}
@@ -47,11 +56,13 @@ body{background:#0d1210;color:var(--dzilums);font-family:var(--sans);font-size:1
 #lietus{--capc:#F4F6F4;--veil:rgba(30,32,36,.6)}
 #rasa{--capc:#F3F7EC;--veil:rgba(10,28,8,.65)}
 #laiks{--capc:#EEF3E6;--veil:rgba(10,18,8,.65)}
+#sene{--capc:#FBF1DE;--veil:rgba(30,16,4,.66)}
 #jura{--capc:#F4F4EE;--veil:rgba(12,18,20,.6)}
 
 .tagline{position:absolute;left:0;right:0;top:62%;text-align:center;font-family:var(--serif);font-style:italic;font-weight:360;font-variation-settings:"SOFT" 100,"opsz" 36;font-size:clamp(18px,2vw,26px);pointer-events:none;z-index:2;color:#12343B;text-shadow:0 0 16px rgba(228,234,230,.8)}
 #laiks .cap h2{font-variant-numeric:lining-nums tabular-nums;font-weight:300}
 #jura .cap h2.mark{font-size:clamp(44px,6vw,84px)}
+#jura .cap{bottom:clamp(70px,13vh,124px)}
 
 /* navigācija un skaņa: krāsa un migla pēc aktīvās sadaļas, lai būtu salasāmas uz jebkura fona */
 .chrome{position:fixed;z-index:10;color:var(--navc);transition:color .4s}
@@ -60,14 +71,32 @@ body[data-sec="lase"]{--navc:#F2EBDD;--navveil:rgba(20,12,4,.7)}
 body[data-sec="tinte"]{--navc:#1E2170;--navveil:rgba(236,240,236,.75)}
 body[data-sec="lietus"]{--navc:#F4F6F4;--navveil:rgba(30,32,36,.7)}
 body[data-sec="rasa"],body[data-sec="laiks"]{--navc:#F3F7EC;--navveil:rgba(10,28,8,.75)}
+body[data-sec="sene"]{--navc:#FBF1DE;--navveil:rgba(30,16,4,.75)}
 body[data-sec="jura"]{--navc:#F4F4EE;--navveil:rgba(12,18,20,.7)}
 .index{right:clamp(14px,2.4vw,32px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:14px;text-shadow:0 0 10px var(--navveil),0 0 22px var(--navveil),0 0 3px var(--navveil)}
 .index a{color:inherit;text-decoration:none;opacity:.7;padding:2px 0 2px 16px;position:relative;transition:opacity .25s}
 .index a:hover{opacity:.95}
 .index a.on{opacity:1}
 .index a.on::before{content:"";position:absolute;left:2px;top:50%;width:7px;height:9px;margin-top:-5px;background:currentColor;clip-path:path("M3.5 0C3.5 0 0 4.6 0 6a3.5 3.5 0 0 0 7 0C7 4.6 3.5 0 3.5 0z")}
-.index a:focus-visible,.sound:focus-visible{outline:2px solid currentColor;outline-offset:3px;opacity:1}
-.sound{top:clamp(14px,2.4vw,28px);right:clamp(14px,2.4vw,32px);background:none;border:1px solid currentColor;border-radius:999px;color:var(--navc);font:inherit;font-size:14px;padding:5px 14px;cursor:pointer;text-shadow:0 0 10px var(--navveil);box-shadow:0 0 18px var(--navveil),inset 0 0 12px var(--navveil)}
+.index a:focus-visible{outline:2px solid currentColor;outline-offset:3px;opacity:1}
+.topbar{top:clamp(14px,2.4vw,28px);right:clamp(14px,2.4vw,32px);z-index:12;display:flex;gap:8px;align-items:flex-start}
+.pill{background:none;border:1px solid currentColor;border-radius:999px;color:var(--navc);font:inherit;font-size:14px;line-height:1.5;padding:5px 14px;cursor:pointer;white-space:nowrap;text-shadow:0 0 10px var(--navveil);box-shadow:0 0 18px var(--navveil),inset 0 0 12px var(--navveil)}
+.pill:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+/* valodas izvēlne: lāse + kods; saraksts ar pašnosaukumiem */
+.langsel{position:relative}
+.langbtn{display:flex;align-items:center;gap:6px;padding:5px 11px;letter-spacing:.04em;font-variant-numeric:lining-nums}
+.langbtn svg{opacity:.85}
+.langlist{position:absolute;right:0;top:calc(100% + 8px);margin:0;padding:6px;list-style:none;min-width:190px;max-height:min(70vh,520px);overflow:auto;overscroll-behavior:contain;
+  background:rgba(14,22,20,.88);color:#EEF2EC;border:1px solid rgba(238,242,236,.22);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.35);font-size:15px;text-shadow:none}
+.langlist[hidden]{display:none}
+.langlist li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 10px;border-radius:9px;cursor:pointer;outline:none}
+.langlist li .cd{font-size:11px;opacity:.55;letter-spacing:.06em}
+.langlist li:hover,.langlist li:focus{background:rgba(238,242,236,.12)}
+.langlist li:focus-visible{box-shadow:inset 0 0 0 1.5px #EEF2EC}
+.langlist li[aria-selected="true"]{font-weight:600}
+.langlist li[aria-selected="true"] .nm::before{content:"";display:inline-block;width:6px;height:8px;margin-right:7px;background:currentColor;clip-path:path("M3 0C3 0 0 4 0 5.2a3 3 0 0 0 6 0C6 4 3 0 3 0z")}
+.langlist li.sep{margin-top:5px;border-top:1px solid rgba(238,242,236,.16);border-top-left-radius:0;border-top-right-radius:0;padding-top:10px}
+@media (max-width:720px){.pill{font-size:13px;padding:4px 11px}.langlist{max-height:62vh;min-width:200px}}
 @media (max-width:720px){.index{display:none}}
 @media (max-width:720px){.credit{bottom:auto;top:clamp(64px,10vh,96px);right:auto;left:clamp(20px,5vw,80px)}}
 /* rasa: sīktēlu pogas ir neredzamas; pašas lāses zīmē šeideris */
@@ -90,10 +119,25 @@ body[data-sec="jura"]{--navc:#F4F4EE;--navveil:rgba(12,18,20,.7)}
   -webkit-mask-image:var(--edge),linear-gradient(#000,#000);mask-image:var(--edge),linear-gradient(#000,#000);
   -webkit-mask-size:100% 8vh,100% calc(100% - 8vh + 1px);mask-size:100% 8vh,100% calc(100% - 8vh + 1px);
   -webkit-mask-position:top,bottom;mask-position:top,bottom;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
-#lase.edged{z-index:2}#tinte.edged{z-index:3}#lietus.edged{z-index:4}#rasa.edged{z-index:5}#laiks.edged{z-index:6}#jura.edged{z-index:7}
+#lase.edged{z-index:2}#tinte.edged{z-index:3}#lietus.edged{z-index:4}#rasa.edged{z-index:5}#laiks.edged{z-index:6}#sene.edged{z-index:7}#jura.edged{z-index:8}
 
 /* v3 veiktspēja: statiskais kadrs tiek ielādēts tikai sadaļām tuvu ekrānam */
 .scene:not(.near){background-image:none!important}
 #perfhud{position:fixed;left:8px;top:8px;z-index:99999;margin:0;padding:8px 10px;background:rgba(0,0,0,.72);color:#bff5c8;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace;pointer-events:none;white-space:pre;border-radius:6px}
 /* ja kadri krīt, kursora stikla efekts tiek izslēgts (backdrop-filter ir dārgs) */
 html.low-fx .dcur .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
+
+/* rasa: diskrēta norāde, ka bildes var vilkt (pazūd pēc pirmās izmantošanas) */
+#rasa .swipe-hint{position:absolute;z-index:3;transform:translate(-50%,-50%);margin:0;pointer-events:none;display:flex;gap:7px;align-items:center;
+  font-family:var(--serif);font-style:italic;font-size:15px;color:#F3F7EC;opacity:.72;text-shadow:0 0 10px rgba(10,28,8,.8);transition:opacity .8s;white-space:nowrap}
+#rasa .swipe-hint .arr{font-style:normal;font-size:18px;line-height:1;animation:swipeL 2.6s ease-in-out infinite}
+#rasa .swipe-hint .arr.r{animation-name:swipeR}
+@keyframes swipeL{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(-5px);opacity:1}}
+@keyframes swipeR{0%,100%{transform:translateX(0);opacity:.5}50%{transform:translateX(5px);opacity:1}}
+#rasa.swiped .swipe-hint,#rasa:not(.gl-ready) .swipe-hint{opacity:0}
+@media (prefers-reduced-motion:reduce){#rasa .swipe-hint .arr{animation:none}}
+/* kājene: autortiesību rinda, maza un mierīga */
+.rights{position:absolute;left:clamp(20px,5vw,80px);bottom:clamp(8px,1.8vh,16px);max-width:min(76ch,calc(100% - 2*clamp(20px,5vw,80px)));margin:0;z-index:2;
+  font-size:11.5px;line-height:1.45;color:var(--capc);opacity:.66;text-shadow:0 0 10px var(--veil),0 0 3px var(--veil)}
+.rights-note{opacity:.85;font-style:italic}
+@media (max-width:720px){.rights{font-size:10.5px}}

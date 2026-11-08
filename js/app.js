@@ -1,13 +1,18 @@
-// piliens.lv v3: galvenais modulis. Ainas ielādējas, kad tuvojas ekrānam; animē tikai redzamās.
+// piliens.lv v4: galvenais modulis. Ainas ielādējas, kad tuvojas ekrānam; animē tikai redzamās.
 import { RM, START, sound, localPoint, SEED, rng, PERF } from "./util.js";
 import { initCursor } from "./cursor.js";
+import { initI18n, t } from "./i18n.js";
 import { createLaiks } from "./scenes/laiks.js";
-import { createStill } from "./scenes/still.js";
 import { createTinte } from "./scenes/tinte.js";
 import { createRasa } from "./scenes/rasa.js";
 import { createLase } from "./scenes/lase.js";
 import { createLietus } from "./scenes/lietus.js";
 import { createPiliens } from "./scenes/piliens.js";
+import { createSene } from "./scenes/sene.js";
+import { createJura } from "./scenes/jura.js";
+
+// valoda: tikai izvēlētās valodas JSON (dažus KB); WebGL ainas valodas maiņa neietekmē
+await initI18n();
 
 const FACTORIES = {
   piliens: s => createPiliens(s),
@@ -16,7 +21,8 @@ const FACTORIES = {
   lietus: s => createLietus(s),
   rasa: s => createRasa(s),
   laiks: s => createLaiks(s),
-  jura: s => createStill(s, "kaje")
+  sene: s => createSene(s),
+  jura: s => createJura(s)
 };
 
 const scenes = new Map();   // sadaļas id -> { el, scene, step, visible, near }
@@ -117,7 +123,8 @@ const btn = document.getElementById("sound");
 btn.addEventListener("click", () => {
   const on = sound.toggle();
   btn.setAttribute("aria-pressed", String(on));
-  btn.textContent = on ? "Izslēgt skaņu" : "Ieslēgt skaņu";
+  btn.dataset.i18n = on ? "ui.soundOff" : "ui.soundOn";
+  btn.textContent = t(btn.dataset.i18n);
 });
 
 initCursor();
@@ -126,7 +133,7 @@ initCursor();
 // ūdens līmenis, palodze, akmens mala, krasts), nevis taisna līnija. Forma nāk no sēklas.
 (() => {
   const R = rng(SEED ^ 0xBEEF);
-  const kinds = { lase: [.7, 3], tinte: [.45, 5], lietus: [.35, 2], rasa: [.8, 7], laiks: [.6, 4], jura: [.75, 2] };
+  const kinds = { lase: [.7, 3], tinte: [.45, 5], lietus: [.35, 2], rasa: [.8, 7], laiks: [.6, 4], sene: [.5, 3], jura: [.75, 2] };
   for (const sec of all.slice(1)) {
     const [amp, waves] = kinds[sec.id] || [.3, 3];
     const ph = [R() * 6.28, R() * 6.28, R() * 6.28];

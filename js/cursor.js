@@ -27,7 +27,7 @@ export function initCursor() {
   function themeAt(cx, cy) {
     const hit = document.elementFromPoint(cx, cy);
     if (!hit) return theme;
-    hoverT = hit.closest("a, button, canvas[tabindex], .thumbs button, #piliens") ? 1 : 0;
+    hoverT = hit.closest("a, button, [role=option], canvas[tabindex], .thumbs button, #piliens") ? 1 : 0;
     const sec = hit.closest("section, footer");
     if (!sec) return theme;
     if (sec.tagName === "FOOTER") return "jura";

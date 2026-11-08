@@ -20,6 +20,7 @@ html.drop-cursor,html.drop-cursor *{cursor:none!important}
 .dcur .extra{opacity:0;transition:opacity .4s}
 .dcur[data-t="sarma"] .frost,.dcur[data-t="sveki"] .bubbles{opacity:1}
 .dcur[data-t="laiks"]{--dc-fill:rgba(200,230,200,.22);--dc-rim:#EEF3E6;--dc-ink:#EEF3E6}
+.dcur[data-t="sene"]{--dc-fill:rgba(255,226,170,.22);--dc-rim:#FBF1DE;--dc-ink:#FBF1DE}
 .dcur[data-t="piliens"]{--dc-fill:rgba(170,215,220,.28);--dc-rim:#12343B;--dc-ink:#12343B}
 .dcur[data-t="lase"]{--dc-fill:rgba(190,140,80,.28);--dc-rim:#F2EBDD;--dc-ink:#F2EBDD}
 .dcur[data-t="tinte"]{--dc-fill:rgba(70,76,200,.24);--dc-rim:#262A86;--dc-ink:#262A86}

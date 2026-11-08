@@ -2,13 +2,10 @@
 // Skaitītājs skaita no lapas atvēršanas (arī tad, kad sadaļa nav redzama).
 import { GLScene, loadImage } from "../glscene.js";
 import { START, RM, plink, clamp } from "../util.js";
+import { tp, num, onLang } from "../i18n.js";
 
 const FULL = 120; // pēc 120 pilieniem bļoda pilna un ūdens pārplūst
 
-function word(n) {
-  if (n === 0) return "pilienu";
-  return (n % 10 === 1 && n % 100 !== 11) ? "piliens" : "pilieni";
-}
 
 export function createLaiks(section) {
   const countEl = section.querySelector("#count");
@@ -47,11 +44,12 @@ export function createLaiks(section) {
     if (count !== shown) {
       if (shown >= 0 && animate) plink("akmens", .14);
       shown = count;
-      countEl.textContent = count;
-      textEl.textContent = `${word(count)}, kopš atvēri šo lapu. Viens katru sekundi, un sūna kļūst zaļāka.`;
+      countEl.textContent = num(count);
+      textEl.textContent = tp("laiks.count", count);
     }
   }
   setInterval(() => updateCount(false), 1000);
+  onLang(() => { shown = -1; updateCount(false); });
   updateCount(false);
 
   return {
