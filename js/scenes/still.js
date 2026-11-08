@@ -6,7 +6,7 @@ import { SEED, rng } from "../util.js";
 export async function wordMask(w, h) {
   await document.fonts.load("640 100px Fraunces");
   const c = document.createElement("canvas"); c.width = 2048; c.height = Math.round(2048 * h / w);
-  const x = c.getContext("2d");
+  const x = c.getContext("2d", { willReadFrequently: true });
   const fs = (w < 700 ? 345 : 280) / 1200 * c.width;
   x.font = `640 ${fs}px Fraunces`;
   x.textAlign = "center"; x.textBaseline = "alphabetic"; x.fillStyle = "#fff";
@@ -18,7 +18,7 @@ export async function sandWords(w, h) {
   const R = rng(SEED ^ 0x51ED);
   await document.fonts.load("italic 300 100px Fraunces");
   const c = document.createElement("canvas"); c.width = 1600; c.height = Math.round(1600 * h / w);
-  const x = c.getContext("2d");
+  const x = c.getContext("2d", { willReadFrequently: true });
   x.fillStyle = "#000"; x.fillRect(0, 0, c.width, c.height); x.fillStyle = "#fff";
   const words = ["lāse", "rasa", "avots", "strauts", "upe", "ezers", "lietus", "vilnis", "jūra", "mākonis", "tvaiks", "ledus"];
   const placed = [];
@@ -37,34 +37,34 @@ export async function sandWords(w, h) {
 
 const LOADERS = {
   async piliens(s, w, h) {
-    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.jpg"), loadImage("foto/sarma-rits-izpludis.jpg")]);
+    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.webp"), loadImage("foto/sarma-rits-izpludis.webp")]);
     s.bgAspect = a.naturalWidth / a.naturalHeight;
     return [await wordMask(w, h), a, b];
   },
   async lase(s, w, h) { return [await sandWords(w, h)]; },
-  async tinte(s) { const a = await loadImage("foto/mezs-izpludis2.jpg"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; },
+  async tinte(s) { const a = await loadImage("foto/mezs-izpludis2.webp"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; },
   async lietus(s) {
-    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.jpg"), loadImage("foto/sarma-rits-izpludis.jpg")]);
+    const [a, b] = await Promise.all([loadImage("foto/sarma-rits.webp"), loadImage("foto/sarma-rits-izpludis.webp")]);
     s.bgAspect = a.naturalWidth / a.naturalHeight; return [a, b];
   },
   async rasa(s, w, h) {
     const tall = w / h < .9;
-    const img = await loadImage("foto/" + (tall ? "lupina-tuva.jpg" : "lupina-plata.jpg"));
+    const img = await loadImage("foto/" + (tall ? "lupina-tuva.webp" : "lupina-plata.webp"));
     s.imgAspect = img.naturalWidth / img.naturalHeight; s.focus = tall ? [.49, .39] : [.24, .54];
     const names = ["lupina-plata", "rasaskreslins", "zvaigzne", "sarma", "rudens", "bite", "gailene", "audums"];
     const at = document.createElement("canvas"); at.width = 1280; at.height = 160;
-    const ax = at.getContext("2d");
-    const th = await Promise.all(names.map(n => loadImage("foto/mazas/" + n + ".jpg")));
+    const ax = at.getContext("2d", { willReadFrequently: true });
+    const th = await Promise.all(names.map(n => loadImage("foto/mazas/" + n + ".webp")));
     th.forEach((t, i) => ax.drawImage(t, i * 160, 0, 160, 160));
     return [img, at];
   },
-  async kaje(s) { const a = await loadImage("foto/jura-akmeni.jpg"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; }
+  async kaje(s) { const a = await loadImage("foto/jura-akmeni.webp"); s.bgAspect = a.naturalWidth / a.naturalHeight; return [a]; }
 };
 
 export function createStill(section, frag) {
   const canvas = section.querySelector("canvas");
   const scene = new GLScene({
-    section, canvas, frag, maxScale: 1.25,
+    section, canvas, frag,
     async textures(s) { const r = canvas.getBoundingClientRect(); return LOADERS[frag](s, r.width, r.height); },
     uniforms(s) {
       const gl = s.gl;

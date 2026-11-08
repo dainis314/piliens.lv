@@ -8,10 +8,11 @@ vec3 Ld = normalize(vec3(-.45, .80, .40));
 uniform sampler2D uTex0;
 uniform sampler2D uTex1;
 uniform sampler2D uTex2;   // ķērpji un sūnas (Daiņa tuvplāns)
-// īstā sūna no Daiņa bildes (bildes apakšējā trešdaļa ir sūnu grīda)
+// īstā sūna no Daiņa bildes (mezs-suna.webp: bildes apakšējā josla ar sūnu grīdu)
 vec3 realMoss(vec2 p) {
   vec2 w = p * 1.6 + .25 * vec2(fbm(p * 3., 3), fbm(p * 3. + 5., 3));
-  vec2 tc = vec2(.08 + .84 * fract(w.x * .45), .03 + .22 * fract(w.y * .7));
+  // tekstūra ir tikai bildes apakšējās 27 % josla (sūnu grīda): y = (.03 + .22·f) / .27
+  vec2 tc = vec2(.08 + .84 * fract(w.x * .45), (.03 + .22 * fract(w.y * .7)) / .27);
   return pow(texture(uTex1, tc).rgb, vec3(2.2));
 }
 uniform float uBgAspect;
@@ -31,6 +32,7 @@ vec3 bgForest(vec2 uv, float blur) {
 
 float boulderSDF(vec2 p, vec2 c, vec2 rad) {
   vec2 q = (p - c) / rad;
+  if (dot(q, q) > 1.21) return 1.;                       // tālu no akmens: troksnis nav vajadzīgs (|n| < .07)
   float ang = atan(q.y, q.x);
   float n = .05 * fbm(vec2(ang * 2., 1.), 4) + .02 * gnoise(vec2(ang * 9., 2.));
   return (length(q) - 1. - n) * min(rad.x, rad.y);
@@ -40,12 +42,17 @@ float boulderSDF(vec2 p, vec2 c, vec2 rad) {
 vec2 fern(vec2 p, vec2 base, float ang, float len, float curl) {
   float d = 1., inner = 0.;
   vec2 dir = vec2(cos(ang), sin(ang)), nrm = vec2(-dir.y, dir.x);
-  for (int i = 0; i < 26; i++) {
+  // izliekums ir šķērsām pret dir, tāpēc projekcija uz dir ir tieši len·t; lapiņas sniedzas ≤ .18·len,
+  // tātad derīgi tikai mugurkaula punkti ar |t − t0| ≤ .2 (rezultāts identisks pilnai cilpai)
+  float t0 = dot(p - base, dir) / len;
+  int i0 = max(0, int(floor((t0 - .2) * 25.))), i1 = min(25, int(ceil((t0 + .2) * 25.)));
+  for (int i = i0; i <= i1; i++) {
     float t = float(i) / 25.;
     vec2 sp = base + dir * len * t + nrm * curl * t * t * len;
     vec2 tang = normalize(dir + nrm * 2. * curl * t);
     vec2 tn = vec2(-tang.y, tang.x);
     float lw = len * .13 * pow(sin(PI * min(1., t * 1.08 + .04)), .8);
+    if (length(p - sp) > lw * 1.3 + len * .012) continue;   // ārpus lapiņu sniedzamības: d paliktu > .25 (pārklājums 0)
     for (int k = -1; k <= 1; k += 2) {
       vec2 ax = normalize(tn * float(k) + tang * .55);
       vec2 lc = sp + ax * lw * .5;
@@ -72,8 +79,10 @@ void main() {
 
   vec2 bc = vec2(cx, mobile ? -.32 : -.34), br = mobile ? vec2(.40 * asp, .16) : vec2(.32, .18);
   // priekšplāns: izplūdusi sūna apakšmalā
-  float fg = smoothstep(-.42, -.5, p.y + .03 * fbm(vec2(p.x * 3., 2.), 3));
-  col = mix(col, vec3(.05, .09, .02) + vec3(.06, .09, .02) * fbm(p * 8., 3), fg * .9);
+  if (p.y < -.38) {
+    float fg = smoothstep(-.42, -.5, p.y + .03 * fbm(vec2(p.x * 3., 2.), 3));
+    col = mix(col, vec3(.05, .09, .02) + vec3(.06, .09, .02) * fbm(p * 8., 3), fg * .9);
+  }
   // ēna zem akmens
   col *= 1. - .6 * smoothstep(.15, -.05, length((p - bc - vec2(.03, -.12)) / (br * vec2(1.2, .5))) - 1.);
 
@@ -111,7 +120,7 @@ void main() {
     lit += vec3(.4, .45, .45) * (1. - moss) * pow(max(dot(reflect(-Ld, n), vec3(0, 0, 1)), 0.), 40.) * .08;
     // iedobe ar ūdeni
     vec2 cq = (p - cc) / cr;
-    float cav = length(cq) - 1. - .06 * fbm(vec2(atan(cq.y, cq.x) * 3., 4.), 3);
+    float cav = dot(cq, cq) > 1.9 ? 1. : length(cq) - 1. - .06 * fbm(vec2(atan(cq.y, cq.x) * 3., 4.), 3);
     float lip = smoothstep(.25, .0, cav) * step(0., cav);
     lit *= 1. - .35 * lip * smoothstep(0., -1., cq.y);
     if (cav < 0.) {
@@ -147,6 +156,8 @@ void main() {
     float ang = PI * .5 + side * (.30 + .55 * hash12(vec2(ff, 2.)));
     float len = (.36 + .14 * hash12(vec2(ff, 3.))) * (mobile ? .75 : 1.);
     float curl = -side * (.38 + .18 * hash12(vec2(ff, 4.)));
+    vec2 tipC = base + vec2(cos(ang), sin(ang)) * len * .55;
+    if (length(p - tipC) > len * .95) continue;               // pikselis tālu no papardes: izlaiž
     vec2 fd = fern(p, base, ang, len, curl);
     float cov = (1. - smoothstep(-.35, .25, fd.x)) * .85;
     if (cov > 0.) {
@@ -161,15 +172,20 @@ void main() {
   // jauna, vēl satīta paparde (gliemežvāks), kas atritināsies
   vec2 kc = bc + vec2(-br.x * .55, br.y * .55);
   vec2 kq = p - kc;
-  float kr = length(kq), ka = atan(kq.y, kq.x);
+  float kr = length(kq);
+  if (kr < .03 || abs(p.x - kc.x) < .04) {
+  float ka = atan(kq.y, kq.x);
   float spiral = abs(fract((log(max(kr, 1e-4)) * 3.2 - ka / (2. * PI)) ) - .5) * kr * 6.;
   float kS = 1. - .7 * uGreen;
   float koru = (kr < .028 * kS && kr > .004 * kS) ? spiral - .02 * kS : 1.;
   float stem = abs(p.x - kc.x - .006 - .01 * (kc.y - p.y) * 8.) - .0025;
   stem = (p.y < kc.y - .02 && p.y > bc.y + br.y * .3) ? stem : 1.;
   if (min(koru, stem) < 0.) col = mix(col, vec3(.18, .30, .07) * (KEY + AMB), .95);
+  }
 
   // klints pārkare: tumšs, slapjš akmens, sūnas tikai virspusē
+  float baseY = mobile ? .26 : .30;
+  if (p.y > baseY - .07) {
   float topY = (mobile ? .26 : .30) + .05 * fbm(vec2(p.x * 2.6 + 2., 1.), 4) + .012 * gnoise(vec2(p.x * 30., 3.)) + .55 * max(0., (mobile ? -.05 : .2) * asp - p.x);
   float edgeL = -10.;
   float od = max(topY - p.y, edgeL - p.x);
@@ -185,10 +201,14 @@ void main() {
     lit = mix(lit, rm, SAT(topMoss));
     col = mix(col, lit, 1. - smoothstep(-.003, .0, od));
   }
-  // nokarenas sūnu šķiedras gar apakšmalu
+  }
+  // nokarenas sūnu šķiedras gar apakšmalu (tikai joslā zem pārkares malas)
+  float sx0 = (mobile ? -.05 : .2) * asp;
+  if (p.y > baseY - .11 && p.y < baseY + .06 && p.x > sx0 - .01 && p.x < sx0 + .3 * asp + .01)
   for (int i = 0; i < 18; i++) {
     float fi = float(i);
     float x = (mobile ? -.05 : .2) * asp + hash12(vec2(fi, 21.)) * (.3 * asp);
+    if (abs(p.x - x) > .0065 || p.y < baseY - .12) continue;   // šķiedra ir 3 px plata un karājas zem pārkares
     float ty = (mobile ? .26 : .30) + .05 * fbm(vec2(x * 2.6 + 2., 1.), 4) + .55 * max(0., (mobile ? -.05 : .2) * asp - x);
     float l = .01 + .045 * pow(hash12(vec2(fi, 22.)), 2.);
     float dx = abs(p.x - x - .003 * sin(p.y * 90. + fi));
@@ -198,6 +218,7 @@ void main() {
 
   // lāsteka
   float ix = cc.x + .003;
+  if (abs(p.x - ix) < .04) {
   float iTop = (mobile ? .26 : .30) + .05 * fbm(vec2(ix * 2.6 + 2., 1.), 4) + .55 * max(0., (mobile ? -.05 : .2) * asp - ix);
   float iLen = (mobile ? .17 : .21) * (.8 + .3 * uRnd[0]) * (1. - .25 * uIcicle);
   float t = SAT((iTop - p.y) / iLen);
@@ -230,6 +251,7 @@ void main() {
   }
   float hl = min(uPhase >= .6 ? length(p - fallC - vec2(-.0018, .0015)) : 1., r0 > .002 ? length(p - tip + vec2(.0018, r0 * .8)) : 1.);
   col += vec3(.9) * smoothstep(.0022, .0, hl);
+  }
 
   col *= .72 + .28 * smoothstep(1.2, .3, length((uv - vec2(.58, .48)) * vec2(asp * .7, 1.)));
   outColor = vec4(finish(col * 1.25, fc), 1.);

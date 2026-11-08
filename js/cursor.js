@@ -17,6 +17,12 @@ export function initCursor() {
   let x = -100, y = -100, px = x, py = y, vx = 0, vy = 0;
   let ang = 0, angV = 0, sq = 0, sqV = 0, hover = 0, hoverT = 0, blinkT = rand(2, 4), blink = 0, happyT = 0, theme = "";
   let lookX = 0, lookY = 0, seen = false, lastT = performance.now(), idle = 0;
+  let hitX = NaN, hitY = NaN, hitT = 0, scrolled = true;
+  window.addEventListener("scroll", () => { scrolled = true; }, { passive: true });
+  // raksta DOM tikai tad, ja vērtība mainījusies (mazāk stila pārrēķinu un SVG pārzīmēšanas)
+  const put = (node, key, val) => { if (node["_" + key] === val) return; node["_" + key] = val;
+    if (key === "tf") node.style.transform = val;
+    else if (key === "op") node.style.opacity = val; else node.setAttribute(key, val); };
 
   function themeAt(cx, cy) {
     const hit = document.elementFromPoint(cx, cy);
@@ -56,8 +62,12 @@ export function initCursor() {
       const nvx = (x - px) / Math.max(dt, .001), nvy = (y - py) / Math.max(dt, .001);
       vx += (nvx - vx) * .25; vy += (nvy - vy) * .25;
       px = x; py = y;
-      const t = themeAt(x, y);
-      if (t !== theme) { theme = t; el.dataset.t = t; }
+      // trāpījuma pārbaude (elementFromPoint piespiež izkārtojumu) tikai pēc kustības/ritināšanas, citādi ik pēc 300 ms
+      if (x !== hitX || y !== hitY || scrolled || now - hitT > 300) {
+        hitX = x; hitY = y; scrolled = false; hitT = now;
+        const t = themeAt(x, y);
+        if (t !== theme) { theme = t; el.dataset.t = t; }
+      }
       hover += (hoverT - hover) * Math.min(1, dt * 12);
 
       if (RM) { ang = 0; sq = 0; }
@@ -74,10 +84,10 @@ export function initCursor() {
       const sx = 1 + sq * .12 - stretch * .5 + breathe + hover * .06;
       const sy = 1 - sq * .12 + stretch - breathe + hover * .06;
 
-      el.style.transform = `translate3d(${x - 6}px, ${y - 6}px, 0)`;
-      swing.style.transform = `rotate(${ang.toFixed(2)}deg)`;
+      put(el, "tf", `translate3d(${x - 6}px, ${y - 6}px, 0)`);
+      put(swing, "tf", `rotate(${ang.toFixed(2)}deg)`);
       const bt = `translate(38px,48px) scale(${sx.toFixed(3)},${sy.toFixed(3)}) translate(-38px,-48px)`;
-      body.style.transform = bt; glass.style.transform = `scale(${sx.toFixed(3)},${sy.toFixed(3)})`;
+      put(body, "tf", bt); put(glass, "tf", `scale(${sx.toFixed(3)},${sy.toFixed(3)})`);
 
       // acis skatās kustības virzienā, laiku pa laikam samirkšķina
       const lxT = clamp(vx / 600, -1.2, 1.2), lyT = clamp(vy / 600, -1, 1);
@@ -86,10 +96,10 @@ export function initCursor() {
       if (blink > 0) blink -= dt;
       happyT = Math.max(0, happyT - dt);
       const isHappy = happyT > 0;
-      eyes.style.opacity = isHappy ? 0 : 1;
-      happy.setAttribute("opacity", isHappy ? 1 : 0);
-      eyes.setAttribute("transform", `translate(${lookX.toFixed(2)} ${lookY.toFixed(2)}) translate(38 45) scale(1 ${blink > 0 ? .12 : 1 + hover * .15}) translate(-38 -45)`);
-      mouth.setAttribute("d", isHappy || hover > .5 ? "M34.5 50q3.5 4.5 7 0" : "M35 50.5q3 3 6 0");
+      put(eyes, "op", isHappy ? "0" : "1");
+      put(happy, "opacity", isHappy ? "1" : "0");
+      put(eyes, "transform", `translate(${lookX.toFixed(2)} ${lookY.toFixed(2)}) translate(38 45) scale(1 ${blink > 0 ? .12 : (1 + hover * .15).toFixed(3)}) translate(-38 -45)`);
+      put(mouth, "d", isHappy || hover > .5 ? "M34.5 50q3.5 4.5 7 0" : "M35 50.5q3 3 6 0");
     }
     requestAnimationFrame(frame);
   }

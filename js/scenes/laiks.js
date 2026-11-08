@@ -16,10 +16,10 @@ export function createLaiks(section) {
   let shown = -1, level = 0, overflow = 0;
 
   const scene = new GLScene({
-    section, canvas: section.querySelector("canvas"), frag: "laiks", maxScale: 1.25,
+    section, canvas: section.querySelector("canvas"), frag: "laiks", fps: 30,
     async textures(s) {
       const [blur, sharp, lichen] = await Promise.all([
-        loadImage("foto/mezs-izpludis.jpg"), loadImage("foto/mezs.jpg"), loadImage("foto/kerpji-sunas.jpg")
+        loadImage("foto/mezs-izpludis.webp"), loadImage("foto/mezs-suna.webp"), loadImage("foto/kerpji-sunas.webp")
       ]);
       s.bgAspect = blur.naturalWidth / blur.naturalHeight;
       return [blur, sharp, { tex: s.texture(lichen, { repeat: true }) }];

@@ -20,8 +20,8 @@ vec2 velocity(vec2 q) {
   // lēna konvekcija un smalkas turbulences, kas aug, gredzeniem palēninoties
   vec2 p = q * vec2(uAsp, 1.) * 5. + vec2(0., uTime * .05);
   float e = .02;
-  float n0 = fbm(p, 3);
-  vec2 curl = vec2(fbm(p + vec2(0, e), 3) - n0, -(fbm(p + vec2(e, 0), 3) - n0)) / e;
+  float n0 = fbm(p, 2);
+  vec2 curl = vec2(fbm(p + vec2(0, e), 2) - n0, -(fbm(p + vec2(e, 0), 2) - n0)) / e;
   v += curl * .010 * vec2(1. / uAsp, 1.);
   v.y -= .004;                                  // tinte ir mazliet smagāka par ūdeni
   return v;

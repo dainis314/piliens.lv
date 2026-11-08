@@ -7,6 +7,7 @@ uniform sampler2D uTex2;   // sarmas rīts, izplūdis
 uniform float uBgAspect;
 uniform sampler2D uTex3;   // lāšu normāļu karte no fizikas (rg normāle, b pārklājums, a: 1 = krītoša lāse)
 uniform vec4 uRip[6];      // peļķes viļņi: x (0..1), vecums (s), stiprums
+uniform vec3 uDust[26];    // putekļu daļiņas (x, y, rādiuss)
 
 vec3 bg(vec2 uv) {
   vec3 c = photoCover(uTex2, clamp(uv, 0., 1.), uBgAspect, vec2(.55, .62), false);
@@ -30,13 +31,13 @@ void main() {
   float sunGlow = exp(-dot(sunP, sunP) * 2.2);
   col = mix(col, col * vec3(1.25, .98, .70) + vec3(.07, .025, 0.), warmK * .85);   // silts krāsu tonis
   col += vec3(1., .62, .28) * (.26 * warmK + .75 * sunGlow);                       // saules siltums stūrī
-  col += vec3(1., .80, .55) * .18 * sunGlow * (.6 + .4 * fbm(sunP * 3. + uTime * .05, 3)); // virmojošs gaiss
-  for (int i = 0; i < 26; i++) {
-    float fi = float(i);
-    vec2 dp = vec2(.5 + .5 * hash12(vec2(fi, 31.)), .45 + .55 * hash12(vec2(fi, 37.)));
-    float rad = .0012 + .005 * pow(hash12(vec2(fi, 41.)), 4.);
-    vec2 dd = (uv - dp) * vec2(asp, 1.);
-    col += vec3(1., .85, .6) * exp(-dot(dd, dd) / (rad * rad)) * .45;
+  if (sunGlow > .02) col += vec3(1., .80, .55) * .18 * sunGlow * (.6 + .4 * fbm(sunP * 3. + uTime * .05, 2)); // virmojošs gaiss
+  // putekļi saulē: vietas un izmēri no sēklas aprēķināti JS pusē (tas pats hash12), šeit tikai 26 tuvuma pārbaudes
+  if (uv.x > .47 && uv.y > .42) for (int i = 0; i < 26; i++) {
+    vec3 D = uDust[i];
+    vec2 dd = (uv - D.xy) * vec2(asp, 1.);
+    float q = dot(dd, dd), r2 = D.z * D.z;
+    if (q < 16. * r2) col += vec3(1., .85, .6) * exp(-q / r2) * .45;
   }
 
   // ---------- burti ----------
@@ -51,8 +52,8 @@ void main() {
     vec3 n = normalize(vec3(-mx * 6., -my * 6., 1.));
     // šīfera reljefs: slāņaini, smalki graudi
     vec2 sp = p * vec2(1., 1.);
-    float layers = fbm(vec2(sp.x * 9., sp.y * 22.) + 1.5 * fbm(sp * 5., 3), 4);
-    float grain = fbm(sp * 260., 3);
+    float layers = fbm(vec2(sp.x * 9., sp.y * 22.) + 1.5 * fbm(sp * 5., 2), 3);
+    float grain = fbm(sp * 260., 2);
     n = normalize(n + vec3(.10 * grain, .08 * layers + .06 * grain, 0.));
     vec3 slate = mix(vec3(.050, .070, .080), vec3(.10, .13, .14), .5 + .5 * layers) * (.85 + .2 * grain);
     float cold = smoothstep(DEW, .2, d);
@@ -92,14 +93,17 @@ void main() {
 
   // rasas punkta līnija: vienīgā apzināti taisnā līnija
   float lineD = ((uv.x + uv.y) - 2. * DEW) / 1.4142;            // ar zīmi: + siltāk, - vēsāk
-  float wob = .012 * fbm(vec2((uv.x - uv.y) * 4., uTime * .06), 3);
-  float band = exp(-pow((lineD + wob) / .045, 2.));                // plata, mīksta josla, bez malām
-  float wisps = smoothstep(.15, .7, fbm(vec2((uv.x - uv.y) * 9., lineD * 30.) + vec2(uTime * .04, 0.), 4));
-  float outside = 1. - smoothstep(.3, .6, m);
-  col = mix(col, vec3(.86, .90, .92), band * (.10 + .14 * wisps) * outside);  // migla, kur tvaiks kondensējas
+  if (abs(lineD) < .16) {                                          // migla rēķināta tikai joslas tuvumā
+    float wob = .012 * fbm(vec2((uv.x - uv.y) * 4., uTime * .06), 2);
+    float band = exp(-pow((lineD + wob) / .045, 2.));              // plata, mīksta josla, bez malām
+    float wisps = smoothstep(.15, .7, fbm(vec2((uv.x - uv.y) * 9., lineD * 30.) + vec2(uTime * .04, 0.), 3));
+    float outside = 1. - smoothstep(.3, .6, m);
+    col = mix(col, vec3(.86, .90, .92), band * (.10 + .14 * wisps) * outside);  // migla, kur tvaiks kondensējas
+  }
 
   // peļķe apakšā: neregulāra mala, sūna un oļi, vārda atspulgs
-  float py = -.34 + .06 * fbm(vec2(p.x * 2.2, 1.), 4) + .015 * gnoise(vec2(p.x * 14., 2.));
+  // krasta līnija ir robežās −.42..−.26: augstāk esošiem pikseļiem troksni nerēķina
+  float py = p.y > -.255 ? -1. : -.34 + .06 * fbm(vec2(p.x * 2.2, 1.), 4) + .015 * gnoise(vec2(p.x * 14., 2.));
   if (p.y < py) {
     float sy = py + .5;
     float rw = 0.;
@@ -123,6 +127,7 @@ void main() {
   }
   // izplūdis priekšplāns: sarmota zāle kreisajā apakšā
   float blades = 0.;
+  if (p.y < .06 && p.x < -.5 * asp + .5)          // stiebri ir tikai kreisajā apakšā
   for (int i = 0; i < 8; i++) {
     float fi = float(i);
     float x0 = -.5 * asp + .02 + .2 * hash12(vec2(fi, 61.));

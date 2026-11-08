@@ -1,7 +1,23 @@
 // piliens: rasas punkts. Silts, mitrs gaiss (labā augša) satiek vēsumu (kreisā apakša).
 // Uz aukstajiem šīfera burtiem kondensējas lāses, aug, saplūst, slīd, pil peļķē; siltajā pusē iztvaiko.
-import { GLScene, loadImage } from "../glscene.js";
-import { RM, rand, plink, localPoint, clamp } from "../util.js";
+import { GLScene, loadImage, BUDGET } from "../glscene.js";
+import { RM, rand, plink, localPoint, clamp, SEED } from "../util.js";
+
+// tas pats hash12 kā šeiderī (float32), lai putekļu vietas paliek atkarīgas no ?seed=
+const F = Math.fround, fr = x => F(x - Math.floor(x));
+function hash12(x, y, seed) {
+  x = F(x + F(fr(F(seed * F(.1031))) * 913)); y = F(y + F(fr(F(seed * F(.0973))) * 677));
+  let a = fr(F(x * F(.1031))), b = fr(F(y * F(.1031))), c = fr(F(x * F(.1031)));
+  const d = F(F(a * F(b + F(33.33))) + F(b * F(c + F(33.33))) + F(c * F(a + F(33.33))));
+  a = F(a + d); b = F(b + d); c = F(c + d);
+  return fr(F(F(a + b) * c));
+}
+function dust() {
+  const seed = SEED % 9973, out = new Float32Array(78);
+  for (let i = 0; i < 26; i++) out.set([.5 + .5 * hash12(i, 31, seed), .45 + .55 * hash12(i, 37, seed), .0012 + .005 * hash12(i, 41, seed) ** 4], i * 3);
+  return out;
+}
+const DUST = dust();
 import { wordMask } from "./still.js";
 
 const DEW = .555; // rasas punkta līnija diagonālē (sakrīt ar šeideri)
@@ -10,7 +26,7 @@ const DEW = .555; // rasas punkta līnija diagonālē (sakrīt ar šeideri)
 // Koordinātas vienībās: x no -1 līdz 1 (platums), y no 0 (augša) uz leju; augstums tajās pašās vienībās.
 function normalSprite(w, h, unitsH, height) {
   const c = document.createElement("canvas"); c.width = w; c.height = h;
-  const x = c.getContext("2d"), img = x.createImageData(w, h);
+  const x = c.getContext("2d", { willReadFrequently: true }), img = x.createImageData(w, h);
   const H = new Float32Array(w * h), du = 2 / w, dv = unitsH / h;
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) H[j * w + i] = height(-1 + (i + .5) * du, (j + .5) * dv);
   for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
@@ -43,9 +59,9 @@ export function createPiliens(section) {
   const air = document.createElement("canvas");
   air.className = "air"; air.setAttribute("aria-hidden", "true");
   section.insertBefore(air, canvas.nextSibling);
-  const actx = air.getContext("2d");
+  const actx = air.getContext("2d"); // GPU audekls: tikai zīmē, nekad nenolasa
   
-  const dmap = document.createElement("canvas"), dctx = dmap.getContext("2d");
+  const dmap = document.createElement("canvas"), dctx = dmap.getContext("2d", { willReadFrequently: true }); // CPU puses audekls: augšupielāde bez GPU nolasīšanas
   let w = 1, h = 1, S = 1, mask = null, MW = 0, MH = 0, mk = 1, inkPts = [], poolY = 0;
   let beads = [], drops = [], vapor = [], rips = [], quiet = 0, dpr = 1;
 
@@ -59,14 +75,16 @@ export function createPiliens(section) {
   const ink = (x, y) => { if (!mask) return false; const mx = Math.round(x * mk), my = Math.round(y * mk); return mx >= 0 && my >= 0 && mx < MW && my < MH && mask[my * MW + mx] > 140; };
 
   const scene = new GLScene({
-    section, canvas, frag: "piliens", maxScale: 1.25,
+    section, canvas, frag: "piliens",
     async textures(s) {
       const r = canvas.getBoundingClientRect();
-      const [a, b] = await Promise.all([loadImage("foto/sarma-rits.jpg"), loadImage("foto/sarma-rits-izpludis.jpg")]);
-      s.bgAspect = a.naturalWidth / a.naturalHeight;
+      // šeideris izmanto tikai izplūdušo kadru (ass oriģināls šai ainai netiek lejuplādēts)
+      const b = await loadImage("foto/sarma-rits-izpludis.webp");
+      s.bgAspect = b.naturalWidth / b.naturalHeight;
       const m = await wordMask(r.width, r.height);
       setup(m);
-      return [m, a, b, dmap];
+      const tb = s.texture(b);
+      return [m, { tex: tb }, { tex: tb }, { tex: s.texture(dmap, { dynamic: true }) }];
     },
     uniforms(s) {
       const gl = s.gl;
@@ -74,6 +92,7 @@ export function createPiliens(section) {
       const d = new Float32Array(24);
       rips.slice(-6).forEach((q, i) => d.set([q.x / w, q.age, q.a, 0], i * 4));
       gl.uniform4fv(s.U("uRip"), d);
+      gl.uniform3fv(s.U("uDust"), DUST);
     }
   });
 
@@ -81,11 +100,11 @@ export function createPiliens(section) {
     const r = canvas.getBoundingClientRect(); w = r.width; h = r.height;
     S = (w / 1200) * Math.max(1, .8 / (w / 1200));
     MW = m.width; MH = m.height; mk = MW / w;
-    const data = m.getContext("2d").getImageData(0, 0, MW, MH).data;
+    const data = m.getContext("2d", { willReadFrequently: true }).getImageData(0, 0, MW, MH).data;
     mask = new Uint8Array(MW * MH); inkPts = [];
     for (let i = 0; i < MW * MH; i++) { mask[i] = data[i * 4 + 3]; if (mask[i] > 220 && i % 7 === 0) inkPts.push([(i % MW) / mk, Math.floor(i / MW) / mk]); }
-    dmap.width = 1024; dmap.height = Math.round(1024 * h / w);
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    dmap.width = 768; dmap.height = Math.round(768 * h / w);
+    dpr = Math.min(1, Math.sqrt(BUDGET / (w * h)));   // tvaika slānis: ne vairāk par pikseļu budžetu, CSS palielina
     air.width = Math.round(w * dpr); air.height = Math.round(h * dpr);
     poolY = h * .83;
     beads = []; drops = [];

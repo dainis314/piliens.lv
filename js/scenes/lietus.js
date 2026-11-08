@@ -5,7 +5,7 @@ import { RM, rand, plink, localPoint, onActivate } from "../util.js";
 
 function normalSprite(n = 64) {
   const c = document.createElement("canvas"); c.width = c.height = n;
-  const x = c.getContext("2d"), img = x.createImageData(n, n);
+  const x = c.getContext("2d", { willReadFrequently: true }), img = x.createImageData(n, n);
   for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
     const u = (i + .5) / n * 2 - 1, v = (j + .5) / n * 2 - 1, r = Math.hypot(u, v), o = (j * n + i) * 4;
     if (r > 1) continue;
@@ -18,14 +18,14 @@ function normalSprite(n = 64) {
 export function createLietus(section) {
   const canvas = section.querySelector("canvas");
   const sprite = normalSprite();
-  const dmap = document.createElement("canvas"), dctx = dmap.getContext("2d");
-  const fmap = document.createElement("canvas"), fctx = fmap.getContext("2d");
+  const dmap = document.createElement("canvas"), dctx = dmap.getContext("2d", { willReadFrequently: true });
+  const fmap = document.createElement("canvas"), fctx = fmap.getContext("2d", { willReadFrequently: true });
 
   let w = 1, h = 1, drops = [], spawnT = 0, lastWipe = null;
 
   function setup() {
     const r = canvas.getBoundingClientRect(); w = r.width; h = r.height;
-    dmap.width = 640; dmap.height = Math.round(640 * h / w);
+    dmap.width = 512; dmap.height = Math.round(512 * h / w);
     fmap.width = 256; fmap.height = Math.round(256 * h / w);
     fctx.fillStyle = "#fff"; fctx.fillRect(0, 0, fmap.width, fmap.height);
     drops = [];
@@ -41,12 +41,12 @@ export function createLietus(section) {
   function add(x, y, r) { drops.push({ x, y, r, vy: 0, stall: rand(0, 1), trail: 0 }); }
 
   const scene = new GLScene({
-    section, canvas, frag: "lietus", maxScale: 1.25,
+    section, canvas, frag: "lietus",
     async textures(s) {
-      const [a, b] = await Promise.all([loadImage("foto/sarma-rits.jpg"), loadImage("foto/sarma-rits-izpludis.jpg")]);
+      const [a, b] = await Promise.all([loadImage("foto/sarma-rits.webp"), loadImage("foto/sarma-rits-izpludis.webp")]);
       s.bgAspect = a.naturalWidth / a.naturalHeight;
       setup(); paint();
-      return [a, b, dmap, fmap];
+      return [a, b, { tex: s.texture(dmap, { dynamic: true }) }, { tex: s.texture(fmap, { dynamic: true }) }];
     },
     uniforms(s) { s.gl.uniform1f(s.U("uBgAspect"), s.bgAspect); }
   });

@@ -1,24 +1,28 @@
 // lāse: sekla upe ar tējas brūnu ūdeni. Viļņu vienādojums uz GPU; gaisma lūzt un zīmē kaustikas uz grunts.
 // Pa virsmu slīd ūdensmērītājs; reti garām aizpeld zivtiņas ēna, kas no klikšķa aizbēg.
 import { SHADERS } from "../shaders.js";
-import { GLScene, PingPong } from "../glscene.js";
+import { GLScene, PingPong, renderToTexture, BUDGET } from "../glscene.js";
 import { sandWords } from "./still.js";
-import { RM, rand, jitter, plink, localPoint, onActivate } from "../util.js";
+import { RM, rand, jitter, plink, localPoint, onActivate, SEED } from "../util.js";
 
 export function createLase(section) {
   const canvas = section.querySelector("canvas");
-  let pp, simProg, imps = [], next = 1, down = false, lastP = null, t = 0;
+  let pp, simProg, bedProg, bedTex = null, bedAsp = 0, imps = [], next = 1, down = false, lastP = null, t = 0;
   const strider = { x: .2, y: .1, a: 0, vx: 0, vy: 0, next: 2 };
   const fish = { on: false, x: 0, y: 0, dir: 0, speed: .12, vis: 0, next: jitter(14, .4) };
 
   const scene = new GLScene({
-    section, canvas, frag: "lase", maxScale: 1.25,
+    section, canvas, frag: "lase",
     async textures(s) {
       const r = canvas.getBoundingClientRect();
       const common = SHADERS.common, sim = SHADERS.lase_sim;
       simProg = s.compile("#version 300 es\n" + common + "\n" + sim);
+      bedProg = s.compile("#version 300 es\n" + common + "\n" + SHADERS.lase_bed);
       const W = 256; pp = new PingPong(s.gl, W, Math.max(64, Math.round(W * r.height / r.width)));
-      return [await sandWords(r.width, r.height), { tex: () => pp.read }];
+      const words = await sandWords(r.width, r.height);
+      const wordsTex = s.texture(words);
+      const bed = bake(s, wordsTex, r.width, r.height);
+      return [{ tex: wordsTex }, { tex: () => pp.read }, { tex: () => bedTex }];
     },
     uniforms(s) {
       const gl = s.gl;
@@ -28,6 +32,21 @@ export function createLase(section) {
     }
   });
   const asp = () => canvas.width / Math.max(1, canvas.height);
+
+  // grunts (oļi, smiltis, vārdi, dziļums) ir statiska: to uzzīmē vienreiz, nevis katrā kadrā
+  function bake(s, wordsTex, cw, ch) {
+    const gl = s.gl, fit = Math.min(1, Math.sqrt(BUDGET / (cw * ch)));
+    const w = Math.round(cw * fit), h = Math.round(ch * fit);
+    if (bedTex) gl.deleteTexture(bedTex);
+    bedTex = renderToTexture(gl, bedProg, w, h, () => {
+      const U = n => gl.getUniformLocation(bedProg, n);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, wordsTex); gl.uniform1i(U("uTex0"), 0);
+      gl.uniform2f(U("uRes"), w, h); gl.uniform1f(U("uSeed"), SEED % 9973); gl.uniform1f(U("uTime"), 0);
+      gl.uniform1fv(U("uRnd"), s.rnd);
+    });
+    bedAsp = cw / ch;
+    return bedTex;
+  }
 
   function impulse(x, y, r, a) { if (imps.length < 8) imps.push([x, y, r, a]); }
   function drop(x, y, big = true) {
@@ -83,6 +102,13 @@ export function createLase(section) {
       });
     }
     imps = [];
+  };
+
+  scene.onResize = async () => {
+    const r = canvas.getBoundingClientRect(), a = r.width / r.height;
+    if (!bedProg || Math.abs(a - bedAsp) / a < .03) return;
+    const words = await sandWords(r.width, r.height);
+    if (scene.ready) { scene.updateTexture(0, words); bake(scene, scene.textures[0].tex, r.width, r.height); }
   };
 
   canvas.addEventListener("pointerdown", e => { down = true; const p = localPoint(canvas, e); lastP = p; drop(p.x, 1 - p.y); });

@@ -86,6 +86,8 @@ void main() {
 
   // sīktēli kā ūdens lāses
   float tr = mobile ? .022 : .028;
+  float rowY = mobile ? .5 - .09 : -.5 + .12;
+  if (abs(p.y - rowY) < tr * 1.6)                  // sīktēlu rinda: citur cilpa neko nemaina
   for (int i = 0; i < 8; i++) {
     float fi = float(i);
     vec2 c = mobile ? vec2(-.5 * asp + .05 + fi * (tr * 2.3), .5 - .09)

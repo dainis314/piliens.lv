@@ -1,7 +1,7 @@
-# piliens.lv (2. versija)
+# piliens.lv (3. versija)
 
 Dabas lapa par vienu pilienu no gaisa līdz jūrai. Statiska lapa bez servera un bez būvēšanas soļa:
-`index.html`, `css/`, `js/` (ES moduļi), `shaders/` (WebGL2), `foto/`, `assets/` (fonti, statiskie kadri, ikonas).
+`index.html`, `css/`, `js/` (ES moduļi), `shaders/` (WebGL2 avoti; pārlūks lieto to apkopojumu `js/shaders.js`), `foto/` (WebP), `assets/` (fonti, statiskie kadri, ikonas).
 
 ## Sadaļas
 
@@ -40,7 +40,30 @@ Katram apmeklējumam ir sava sēkla, tāpēc aina katru reizi ir mazliet citāda
 ## Tehniski
 
 - WebGL2 katrai ainai; ja WebGL2 nav, redzams statisks kadrs no `assets/kadri/`.
-- Adaptīvā kvalitāte: ja kadri kļūst lēni, aina automātiski samazina izšķirtspēju. Neredzamās sadaļas un paslēpta cilne netiek zīmētas.
+- Šeideru avoti ir `shaders/*.frag` un `shaders/common.glsl`. Pēc to labošanas palaid `python3 tools/bundle_shaders.py`, kas atjauno `js/shaders.js` (pārlūks ielādē tikai to).
 - Samazinātā kustība: automātiskās animācijas apstājas, mijiedarbība un skaitītājs paliek.
 - Fonti (Fraunces, Commissioner, SIL Open Font License) glabājas `assets/fonts/`; nav Google Fonts, izsekotāju un sīkdatņu.
 - Lokāla pārbaude: `python -m http.server` šajā mapē un atver `http://localhost:8000` (ES moduļi un `fetch` nestrādā, atverot failu tieši).
+
+## Veiktspēja (3. versija)
+
+Mērķis ir 50–60 fps arī integrētajā grafikā (Intel UHD), nemainot izskatu.
+
+- **Konteksta dzīves cikls.** WebGL konteksts ir tikai sadaļām ekrānā un ~pusekrāna attālumā (parasti 2–3). Tālākās tiek atbrīvotas ar `WEBGL_lose_context` un atjaunotas, kad tuvojas. Zīmē tikai redzamās ainas: parasti vienu, pārejā divas. Kaimiņsadaļa, kas ar organisko malu ielīdusi ekrānā, zīmē tikai savu redzamo joslu (`scissor`).
+- **Pikseļu budžets.** Katras ainas iekšējais audekls ir ≤ 1,4 MP, `devicePixelRatio` netiek izmantots (≤ 1 pikselis uz CSS pikseli). CSS palielina līdz ekrāna izmēram.
+- **Adaptīvā kvalitāte.** Sākuma mērogs ir 0,8. Ja vidējais kadrs ilgāk par 20 ms, mērogs samazinās (līdz 0,5). Ja ilgstoši zem 12–17 ms, tas lēni aug līdz 1.
+- **Šeideri.** Dārgās daļas rēķina tikai tur, kur tās redzamas: papardes, sūnu šķiedras, lāsteka, putekļi, peļķe, migla. Ir mazāk `fbm` oktāvu. Lāses upes gultne tiek izcepta tekstūrā vienreiz (`lase_bed.frag`), nevis rēķināta katrā kadrā. „Laiks” zīmē ar 30 fps (laiks interpolēts), pārējās ainas ar 60 fps.
+- **Konteksta zudums.** `webglcontextlost` tiek apstrādāts ar `preventDefault`, un aina pati atjaunojas. Statiskais kadrs (`gl-fallback`) ir tikai tad, ja WebGL2 tiešām nav. Konteksta iestatījumi: `powerPreference: "high-performance"`, bez antialias, depth, stencil un preserveDrawingBuffer.
+- **Augšupielādes bez GPU apstāšanās.** Katrā kadrā mainīgās 2D kartes (lāses, stikla migla) ir CPU audekli (`willReadFrequently`), un tām netiek veidotas mipmap.
+- **Attēli.** Visi ir WebP, garākā mala ≤ 1920 px. Sīktēli ir `foto/mazas/` (160 px). Bildes un statiskie kadri ielādējas tikai tad, kad sadaļa tuvojas. Pirmajam ekrānam vajag 4 attēlus, nevis 15.
+- **Kursors.** Tas ir tikai pelei (`hover: hover` un `pointer: fine`), skārienierīcēs nav. DOM tiek rakstīts tikai mainītām vērtībām, un `elementFromPoint` tiek saukts tikai pēc kustības vai ritināšanas. Ja fps < 40, stikla `backdrop-filter` izslēdzas (klase `low-fx`).
+
+### Diagnostika: `?perf=1`
+
+Kreisajā augšējā stūrī redzams panelis ar šādu informāciju:
+- fps, vidējais kadra laiks un dzīvo kontekstu skaits;
+- katrai ainai: stāvoklis (zīmē, gaida, atbrīvots), iekšējā izšķirtspēja, kvalitātes mērogs `q`, mērķa fps, ainas laiks ms un uzzīmētā daļa %.
+
+Tie paši dati ir `window.__perf`. Šajā režīmā ainas laiks tiek mērīts ar sinhronu 1 pikseļa nolasīšanu, tāpēc pats panelis lapu mazliet palēnina.
+
+Var kombinēt: `?seed=2&perf=1`.

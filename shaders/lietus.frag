@@ -23,13 +23,13 @@ void main() {
   bool mobile = asp < .9;
 
   // vecs stikls: viegls viļņainums
-  vec2 wob = .004 * vec2(fbm(vec2(uv.y * 3., 1.), 3), fbm(vec2(uv.x * 2., 4.), 3));
+  vec2 wob = .004 * vec2(fbm(vec2(uv.y * 3., 1.), 2), fbm(vec2(uv.x * 2., 4.), 2));
   vec3 sharp = dusk(uv + wob, 0.);
   vec3 blurred = dusk(uv + wob, 1.);
 
   // aprasojums: uTex3 (r = 1 aprasojis, 0 noslaucīts), ko zīmē JS no kursora un slīdošajām lāsēm
   float fogA = texture(uTex3, uv).a;
-  float fogN = .75 + .25 * fbm(p * 8., 4);
+  float fogN = .75 + .25 * fbm(p * 8., 3);
   vec3 fog = mix(blurred * 1.2, vec3(.62, .62, .64), .45) * fogN + vec3(.02);
   vec3 col = mix(sharp, fog, fogA);
   col += vec3(.04) * fogA * fbm(p * 220., 2);

@@ -18,9 +18,9 @@ export function createTinte(section) {
   }
 
   const scene = new GLScene({
-    section, canvas, frag: "tinte", maxScale: 1.25,
+    section, canvas, frag: "tinte",
     async textures(s) {
-      const bg = await loadImage("foto/mezs-izpludis2.jpg");
+      const bg = await loadImage("foto/mezs-izpludis2.webp");
       s.bgAspect = bg.naturalWidth / bg.naturalHeight;
       const common = SHADERS.common, sim = SHADERS.tinte_sim;
       simProg = s.compile("#version 300 es\n" + common + "\n" + sim);
@@ -101,7 +101,7 @@ export function createTinte(section) {
     const data = new Float32Array(96);
     vort.forEach((v, i) => { data.set([v.x, v.y, v.G, v.core], i * 4); });
     // divi apakšsoļi stabilitātei
-    const sub = 2, sdt = dt / sub;
+    const sub = dt > 1 / 45 ? 2 : 1, sdt = dt / sub;
     for (let k = 0; k < sub; k++) {
       pp.step(simProg, () => {
         const U = n => gl.getUniformLocation(simProg, n);

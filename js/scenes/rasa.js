@@ -28,7 +28,7 @@ export function createRasa(section) {
     const b = document.createElement("button");
     b.type = "button"; b.setAttribute("aria-label", S.alt); b.setAttribute("aria-pressed", String(i === 0));
     b.addEventListener("click", e => { e.stopPropagation(); show(i, b); });
-    b.addEventListener("pointerenter", () => { hoverThumb = i; });
+    b.addEventListener("pointerenter", () => { hoverThumb = i; image(info(i).src); });   // bildi ielādē tikai, kad tai pietuvojas
     b.addEventListener("pointerleave", () => { hoverThumb = -1; });
     wrap.appendChild(b); return b;
   });
@@ -47,23 +47,21 @@ export function createRasa(section) {
   function info(i) {
     const r = canvas.getBoundingClientRect(), tall = r.width / r.height < .9, S = SLIDES[i];
     const useTall = tall && S.tall;
-    return { src: "foto/" + (useTall ? S.tall : S.wide) + ".jpg", focus: useTall ? S.tf : S.f };
+    return { src: "foto/" + (useTall ? S.tall : S.wide) + ".webp", focus: useTall ? S.tf : S.f };
   }
-  async function image(src) { if (!cache[src]) cache[src] = loadImage(src); return cache[src]; }
+  const image = src => loadImage(src);
 
   const scene = new GLScene({
-    section, canvas, frag: "rasa", maxScale: 1.5,
+    section, canvas, frag: "rasa",
     async textures(s) {
-      curInfo = info(0); prevInfo = curInfo;
+      curInfo = info(cur); prevInfo = curInfo;
       const img = await image(curInfo.src);
       curInfo.aspect = prevInfo.aspect = img.naturalWidth / img.naturalHeight;
       const at = document.createElement("canvas"); at.width = 1280; at.height = 160;
-      const ax = at.getContext("2d");
-      const th = await Promise.all(SLIDES.map(S => loadImage("foto/mazas/" + S.wide + ".jpg")));
+      const ax = at.getContext("2d", { willReadFrequently: true });
+      const th = await Promise.all(SLIDES.map(S => loadImage("foto/mazas/" + S.wide + ".webp")));
       th.forEach((m, i) => ax.drawImage(m, i * 160, 0, 160, 160));
       layoutThumbs();
-      // pārējās bildes ielādē, kad sadaļa jau redzama
-      setTimeout(() => SLIDES.forEach((_, i) => image(info(i).src)), 2000);
       return [img, at, img];
     },
     uniforms(s) {

@@ -20,10 +20,11 @@ void main() {
 
   // putu mežģīnes pēc viļņa: tikai ūdenī, sekojot krasta līnijai
   float lace = 0.;
-  for (int i = 0; i < 3; i++) {
+  if (waterish > .01 && uv.y < .52) for (int i = 0; i < 3; i++) {
     float fi = float(i);
     float ly = .18 + .09 * fi + .03 * fbm(vec2(p.x * 2. + fi * 3., fi), 3);
     float band = smoothstep(.025, .0, abs(uv.y - ly));
+    if (band <= 0.) continue;
     float holes = smoothstep(.40, .62, voronoi(p * 70. + fi * 5., .9).y * 3.);
     lace = max(lace, band * holes * (1. - fi * .25));
   }

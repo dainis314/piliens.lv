@@ -22,13 +22,13 @@ body{background:#0d1210;color:var(--dzilums);font-family:var(--sans);font-size:1
 .scene{position:relative;height:100vh;height:100svh;min-height:540px;overflow:hidden;
   background:#0d1210 var(--still) center/cover no-repeat}
 @media (max-aspect-ratio:9/10){.scene{background-image:var(--still-m)}}
-#piliens{--still:url(../assets/kadri/piliens.jpg);--still-m:url(../assets/kadri/piliens-m.jpg)}
-#lase{--still:url(../assets/kadri/lase.jpg);--still-m:url(../assets/kadri/lase-m.jpg)}
-#tinte{--still:url(../assets/kadri/tinte.jpg);--still-m:url(../assets/kadri/tinte-m.jpg)}
-#lietus{--still:url(../assets/kadri/lietus.jpg);--still-m:url(../assets/kadri/lietus-m.jpg)}
-#rasa{--still:url(../assets/kadri/rasa.jpg);--still-m:url(../assets/kadri/rasa-m.jpg)}
-#laiks{--still:url(../assets/kadri/laiks.jpg);--still-m:url(../assets/kadri/laiks-m.jpg)}
-#jura{--still:url(../assets/kadri/kaje.jpg);--still-m:url(../assets/kadri/kaje-m.jpg)}
+#piliens{--still:url(../assets/kadri/piliens.webp);--still-m:url(../assets/kadri/piliens-m.webp)}
+#lase{--still:url(../assets/kadri/lase.webp);--still-m:url(../assets/kadri/lase-m.webp)}
+#tinte{--still:url(../assets/kadri/tinte.webp);--still-m:url(../assets/kadri/tinte-m.webp)}
+#lietus{--still:url(../assets/kadri/lietus.webp);--still-m:url(../assets/kadri/lietus-m.webp)}
+#rasa{--still:url(../assets/kadri/rasa.webp);--still-m:url(../assets/kadri/rasa-m.webp)}
+#laiks{--still:url(../assets/kadri/laiks.webp);--still-m:url(../assets/kadri/laiks-m.webp)}
+#jura{--still:url(../assets/kadri/kaje.webp);--still-m:url(../assets/kadri/kaje-m.webp)}
 .stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;opacity:0;transition:opacity .6s}
 .gl-ready .stage{opacity:1}
 .stage:focus-visible{outline:3px solid currentColor;outline-offset:-8px}
@@ -91,3 +91,9 @@ body[data-sec="jura"]{--navc:#F4F4EE;--navveil:rgba(12,18,20,.7)}
   -webkit-mask-size:100% 8vh,100% calc(100% - 8vh + 1px);mask-size:100% 8vh,100% calc(100% - 8vh + 1px);
   -webkit-mask-position:top,bottom;mask-position:top,bottom;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
 #lase.edged{z-index:2}#tinte.edged{z-index:3}#lietus.edged{z-index:4}#rasa.edged{z-index:5}#laiks.edged{z-index:6}#jura.edged{z-index:7}
+
+/* v3 veiktspēja: statiskais kadrs tiek ielādēts tikai sadaļām tuvu ekrānam */
+.scene:not(.near){background-image:none!important}
+#perfhud{position:fixed;left:8px;top:8px;z-index:99999;margin:0;padding:8px 10px;background:rgba(0,0,0,.72);color:#bff5c8;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace;pointer-events:none;white-space:pre;border-radius:6px}
+/* ja kadri krīt, kursora stikla efekts tiek izslēgts (backdrop-filter ir dārgs) */
+html.low-fx .dcur .glass{-webkit-backdrop-filter:none;backdrop-filter:none}
