@@ -12,11 +12,32 @@ uniform vec2 uImpact;      // lāses trieciena vieta (ekrāna 0..1)
 uniform int uSel;
 uniform float uLensR;
 uniform int uMouseThumb;
+uniform sampler2D uTex3;   // nākamā bilde (pārvilkšanai pa kreisi)
+uniform sampler2D uTex4;   // iepriekšējā bilde (pārvilkšanai pa labi)
+uniform vec4 uNextInfo;    // aspekts, fokuss (x, y), -
+uniform vec4 uPrev2Info;
+uniform float uSlide;      // pārvilkšana: bīde ekrāna platumos (−1..1; mīnus = nāk nākamā no labās)
 
 vec3 photoRaw(vec2 uv) { return photoCover(uTex0, clamp(uv, 0., 1.), uImgAspect, uFocus, false); }
 vec3 photoPrev(vec2 uv) { return photoCover(uTex2, clamp(uv, 0., 1.), uPrevAspect, uPrevFocus, false); }
+// pārvilkšana: bilde seko pirkstam; šuvē starp bildēm maiga ūdens lēca (lāses trieciena klusais variants)
+vec3 photoSlide(vec2 uv) {
+  float asp = uRes.x / uRes.y;
+  float seam = uSlide < 0. ? 1. + uSlide : uSlide;          // šuves vieta ekrānā (0..1)
+  float d = (uv.x - seam) * asp;
+  float k = exp(-d * d * 260.);
+  float x = uv.x - uSlide - sign(d) * k * .018;              // laušana šuvē: abas puses viegli "palielinās"
+  vec2 y = vec2(0., (uv.y - .5) * k * .03);
+  vec3 c;
+  if (x >= 0. && x <= 1.) c = photoRaw(vec2(x, uv.y) - y);
+  else if (x > 1.) c = photoCover(uTex3, clamp(vec2(x - 1., uv.y) - y, 0., 1.), uNextInfo.x, uNextInfo.yz, false);
+  else c = photoCover(uTex4, clamp(vec2(x + 1., uv.y) - y, 0., 1.), uPrev2Info.x, uPrev2Info.yz, false);
+  float rip = sin(d * 70. - uTime * 5.) * k;
+  return c * (1. - .06 * k) + vec3(1.) * (k * .07 + max(rip, 0.) * .05);
+}
 // pāreja: uz bildes uzkrīt lāse, un jaunā bilde izplešas no trieciena vietas kā vilnis ar laušanu malā
 vec3 photo(vec2 uv) {
+  if (abs(uSlide) > 1e-4) return photoSlide(uv);
   if (uTrans >= 1.) return photoRaw(uv);
   float asp = uRes.x / uRes.y;
   vec2 d = (uv - uImpact) * vec2(asp, 1.);
