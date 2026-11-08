@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>piliens</title>
-<meta name="description" content="Viens piliens no gaisa līdz jūrai: rasas punkts, upe, tinte, lietus, rasa un laiks. Dabas lapa ar Daiņa fotogrāfijām.">
+<title>piliens · Septiņi veidi, kā izskatās piliens</title>
+<meta name="description" content="Septiņi veidi, kā izskatās piliens: rasas punkts, upe, tinte, lietus, rasa, laiks un sēne. Viens piliens no gaisa līdz jūrai, dabas lapa ar Daiņa fotogrāfijām.">
 <meta name="theme-color" content="#12343B">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://piliens.lv/">
-<meta property="og:title" content="piliens">
-<meta property="og:description" content="Viens piliens no gaisa līdz jūrai.">
+<meta property="og:title" content="piliens · Septiņi veidi, kā izskatās piliens">
+<meta property="og:description" content="Viens piliens no gaisa līdz jūrai. Septiņi veidi, kā izskatās piliens.">
 <meta property="og:image" content="https://piliens.lv/assets/og/piliens-og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="lv_LV">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="piliens">
-<meta name="twitter:description" content="Viens piliens no gaisa līdz jūrai.">
+<meta name="twitter:title" content="piliens · Septiņi veidi, kā izskatās piliens">
+<meta name="twitter:description" content="Viens piliens no gaisa līdz jūrai. Septiņi veidi, kā izskatās piliens.">
 <meta name="twitter:image" content="https://piliens.lv/assets/og/piliens-og.jpg">
 <link rel="icon" href="assets/og/ikona.svg" type="image/svg+xml">
 <link rel="icon" href="assets/og/ikona-32.png" sizes="32x32" type="image/png">
@@ -59,15 +59,24 @@
     </svg>
   </div>
 </div>
-<button class="chrome sound" id="sound" type="button" aria-pressed="false">Ieslēgt skaņu</button>
+<div class="chrome topbar">
+  <div class="langsel">
+    <button class="pill langbtn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="langList" aria-label="Valoda: latviešu" data-i18n-attr="aria-label:ui.langBtn">
+      <svg viewBox="0 0 12 15" width="10" height="13" aria-hidden="true"><path d="M6 0C6 0 0 7.6 0 9.6a6 6 0 0 0 12 0C12 7.6 6 0 6 0z" fill="currentColor"/></svg><span id="langCode">LV</span>
+    </button>
+    <ul class="langlist" id="langList" role="listbox" aria-label="Izvēlies valodu" data-i18n-attr="aria-label:ui.langList" hidden></ul>
+  </div>
+  <button class="pill sound" id="sound" type="button" aria-pressed="false" data-i18n="ui.soundOn">Ieslēgt skaņu</button>
+</div>
 
-<nav class="chrome index" aria-label="Sadaļas">
-  <a href="#piliens">piliens</a>
-  <a href="#lase">lāse</a>
-  <a href="#tinte">tinte</a>
-  <a href="#lietus">lietus</a>
-  <a href="#rasa">rasa</a>
-  <a href="#laiks">laiks</a>
+<nav class="chrome index" aria-label="Sadaļas" data-i18n-attr="aria-label:ui.nav">
+  <a href="#piliens" data-i18n="nav.piliens">piliens</a>
+  <a href="#lase" data-i18n="nav.lase">lāse</a>
+  <a href="#tinte" data-i18n="nav.tinte">tinte</a>
+  <a href="#lietus" data-i18n="nav.lietus">lietus</a>
+  <a href="#rasa" data-i18n="nav.rasa">rasa</a>
+  <a href="#laiks" data-i18n="nav.laiks">laiks</a>
+  <a href="#sene" data-i18n="nav.sene">sēne</a>
 </nav>
 
 <main>
@@ -75,44 +84,44 @@
 <section id="piliens" class="scene" data-static="piliens">
   <h1 class="sr-only">piliens</h1>
   <canvas class="stage" aria-hidden="true"></canvas>
-  <p class="tagline">Seši veidi, kā izskatās viena lāse.</p>
+  <p class="tagline" data-i18n="hero.tagline">Septiņi veidi, kā izskatās piliens.</p>
 </section>
 
 <section id="lase" class="scene" data-static="lase">
-  <canvas class="stage" tabindex="0" role="img" aria-label="Sekla upe ar tējas brūnu ūdeni; caur to redzami oļi un smiltis, uz kurām zīmējas gaismas tīkls. Nospied Enter, lai iepilinātu lāsi."></canvas>
+  <canvas class="stage" tabindex="0" role="img" aria-label="Sekla upe ar tējas brūnu ūdeni; caur to redzami oļi un smiltis, uz kurām zīmējas gaismas tīkls. Nospied Enter, lai iepilinātu lāsi." data-i18n-attr="aria-label:lase.aria"></canvas>
   <div class="cap">
-    <h2>lāse</h2>
-    <p>Upes grunts caur seklu ūdeni. Katrs vilnis pārzīmē gaismas tīklu uz akmeņiem.</p>
-    <p class="hint">Klikšķini vai velc pa ūdeni.</p>
+    <h2 data-i18n="nav.lase">lāse</h2>
+    <p data-i18n="lase.text">Upes grunts caur seklu ūdeni. Katrs vilnis pārzīmē gaismas tīklu uz akmeņiem.</p>
+    <p class="hint" data-i18n="lase.hint">Klikšķini vai velc pa ūdeni.</p>
   </div>
 </section>
 
 <section id="tinte" class="scene" data-static="tinte">
-  <canvas class="stage" tabindex="0" role="img" aria-label="Glāze ūdens pret logu; tintes piliens izplūst virpuļgredzenos. Nospied Enter, lai iepilinātu tinti."></canvas>
+  <canvas class="stage" tabindex="0" role="img" aria-label="Glāze ūdens pret logu; tintes piliens izplūst virpuļgredzenos. Nospied Enter, lai iepilinātu tinti." data-i18n-attr="aria-label:tinte.aria"></canvas>
   <div class="cap">
-    <h2>tinte</h2>
-    <p>Tintes piliens glāzē ūdens. Divreiz vienādi tas neizplūst nekad.</p>
-    <p class="hint">Klikšķini, lai iepilinātu.</p>
+    <h2 data-i18n="nav.tinte">tinte</h2>
+    <p data-i18n="tinte.text">Tintes piliens glāzē ūdens. Divreiz vienādi tas neizplūst nekad.</p>
+    <p class="hint" data-i18n="tinte.hint">Klikšķini, lai iepilinātu.</p>
   </div>
 </section>
 
 <section id="lietus" class="scene" data-static="lietus">
-  <canvas class="stage" tabindex="0" role="img" aria-label="Aprasojis vecs logs, aiz kura sarmots rīts; lāses uz stikla. Kursors noslauka aprasojumu."></canvas>
+  <canvas class="stage" tabindex="0" role="img" aria-label="Aprasojis vecs logs, aiz kura sarmots rīts; lāses uz stikla. Kursors noslauka aprasojumu." data-i18n-attr="aria-label:lietus.aria"></canvas>
   <div class="cap">
-    <h2>lietus</h2>
-    <p>Rīts aiz veca loga. Lielās lāses aprij mazās un aizslīd lejup.</p>
-    <p class="hint">Velc pa aprasojušo stiklu, lai noslaucītu.</p>
+    <h2 data-i18n="nav.lietus">lietus</h2>
+    <p data-i18n="lietus.text">Rīts aiz veca loga. Lielās lāses aprij mazās un aizslīd lejup.</p>
+    <p class="hint" data-i18n="lietus.hint">Velc pa aprasojušo stiklu, lai noslaucītu.</p>
   </div>
 </section>
 
 <section id="rasa" class="scene" data-static="rasa">
-  <canvas class="stage" tabindex="0" role="img" aria-label="Fotogrāfija ar rasas lāsēm; kursors kustas pār to kā palielinoša ūdens lāse."></canvas>
+  <canvas class="stage" tabindex="0" role="img" aria-label="Fotogrāfija ar rasas lāsēm; kursors kustas pār to kā palielinoša ūdens lāse." data-i18n-attr="aria-label:rasa.aria"></canvas>
   <div class="cap">
-    <h2>rasa</h2>
+    <h2 data-i18n="nav.rasa">rasa</h2>
     <p id="rasaText">Lupīnas lapas pēc lietus. Katras lapas vidū sakrājusies viena lāse, kas strādā kā lēca.</p>
-    <p class="hint">Vadi kursoru pār bildi: tas kļūst par lāsi.</p>
+    <p class="hint" data-i18n="rasa.hint">Vadi kursoru pār bildi: tas kļūst par lāsi.</p>
   </div>
-  <p class="credit">Foto: Dainis</p>
+  <p class="credit" data-i18n="credit.photo">Foto: Dainis</p>
 </section>
 
 <section id="laiks" class="scene" data-static="laiks">
@@ -123,15 +132,26 @@
   </div>
 </section>
 
+<section id="sene" class="scene" data-static="sene">
+  <canvas class="stage" tabindex="0" role="img" aria-label="Dzeltenoranža zvīņbeka rudens mežā; uz cepurītes sēž ūdens piliens, kurā otrādi redzams mežs. Nospied Enter, lai piliens nokristu." data-i18n-attr="aria-label:sene.aria"></canvas>
+  <div class="cap">
+    <h2 data-i18n="nav.sene">sēne</h2>
+    <p data-i18n="sene.text">Zvīņbeka rudens mežā. Migla uz cepurītes kondensējas vienā pilienā, līdz tas kļūst par smagu.</p>
+    <p class="hint" data-i18n="sene.hint">Turi kursoru virs sēnes, lai atnestu miglu. Klikšķis noliek pilienu.</p>
+  </div>
+  <p class="credit" data-i18n="credit.photo">Foto: Dainis</p>
+</section>
+
 </main>
 
 <footer id="jura" class="scene" data-static="kaje">
   <canvas class="stage" aria-hidden="true"></canvas>
   <div class="cap">
     <h2 class="mark">piliens.lv</h2>
-    <p>Viens piliens no gaisa līdz jūrai.</p>
+    <p data-i18n="footer.tagline">Viens piliens no gaisa līdz jūrai.</p>
   </div>
-  <p class="credit">Visas fotogrāfijas: Dainis</p>
+  <p class="credit" data-i18n="footer.credit">Visas fotogrāfijas: Dainis</p>
+  <p class="rights"><span data-i18n="footer.rights">© 2026 Dainis Piliens. Visas tiesības aizsargātas. Fotogrāfijas, teksti un lapas dizains nav kopējami, izplatāmi vai izmantojami bez autora rakstiskas piekrišanas.</span> <span class="rights-note" data-i18n="footer.rightsNote" data-i18n-hide-empty hidden></span></p>
 </footer>
 
 <script type="module" src="js/app.js"></script>
